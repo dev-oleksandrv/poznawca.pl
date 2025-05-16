@@ -20,9 +20,16 @@ type PostgresConfig struct {
 	AutoMigrateEnabled bool
 }
 
+type RedisConfig struct {
+	Addr     string
+	Password string
+	DB       int
+}
+
 type Config struct {
 	AppProxy   AppProxyConfig
 	AdminProxy AdminProxyConfig
 	OpenAI     OpenAIConfig
 	Postgres   PostgresConfig
+	Redis      RedisConfig
 }

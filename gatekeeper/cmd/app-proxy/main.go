@@ -35,10 +35,23 @@ func main() {
 		os.Exit(1)
 	}
 
+	redisDb, err := database.NewRedisDatabase(database.NewRedisDatabaseConfig{
+		Addr:     cfg.Redis.Addr,
+		Password: cfg.Redis.Password,
+		DB:       cfg.Redis.DB,
+	})
+	if err != nil {
+		slog.Error("cannot connect to redis database", "err", err)
+		os.Exit(1)
+	}
+
 	openaiClient := openai.NewClient(cfg.OpenAI.APIKey)
 
 	interviewRepository := repository.NewInterviewRepository(db)
 	interviewerRepository := repository.NewInterviewerRepository(db)
+
+	interviewCacheRepository := repository.NewInterviewCacheRepository(redisDb)
+	fmt.Println(interviewCacheRepository)
 
 	interviewService := service.NewInterviewService(openaiClient, interviewRepository, interviewerRepository)
 

@@ -27,5 +27,9 @@ func LoadConfig() (*Config, error) {
 	config.Postgres.Url = viper.GetString("POSTGRES_URL")
 	config.Postgres.AutoMigrateEnabled = viper.GetBool("POSTGRES_AUTO_MIGRATE_ENABLED")
 
+	config.Redis.Addr = viper.GetString("REDIS_ADDR")
+	config.Redis.Password = viper.GetString("REDIS_PASSWORD")
+	config.Redis.DB = viper.GetInt("REDIS_DB")
+
 	return config, nil
 }

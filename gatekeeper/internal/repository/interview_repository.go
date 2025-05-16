@@ -26,13 +26,15 @@ func NewInterviewRepository(db *database.PGQLDatabase) InterviewRepository {
 
 func (r *interviewRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID, opts ...query.InterviewQueryOption) (*model.Interview, error) {
 	var interview *model.Interview
-	query := r.db.WithContext(ctx)
+	tx := r.db.WithContext(ctx).Begin()
 
 	for _, opt := range opts {
-		query = opt(query)
+		tx = opt(tx)
 	}
 
-	if err := query.First(&interview, "id = ?", id).Error; err != nil {
+	if err := tx.First(&interview, "id = ?", id).Commit().Error; err != nil {
+		tx.Rollback()
+
 		return nil, err
 	}
 

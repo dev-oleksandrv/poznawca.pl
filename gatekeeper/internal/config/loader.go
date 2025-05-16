@@ -15,6 +15,9 @@ func LoadConfig() (*Config, error) {
 
 	config := new(Config)
 
+	config.AppProxy.Port = viper.GetInt("APP_PROXY_PORT")
+	config.AppProxy.Env = viper.GetString("APP_PROXY_ENV")
+
 	config.AdminProxy.Port = viper.GetInt("ADMIN_PROXY_PORT")
 	config.AdminProxy.Env = viper.GetString("ADMIN_PROXY_ENV")
 

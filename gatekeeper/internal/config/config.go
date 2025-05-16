@@ -1,5 +1,10 @@
 package config
 
+type AppProxyConfig struct {
+	Port int
+	Env  string
+}
+
 type AdminProxyConfig struct {
 	Port int
 	Env  string
@@ -16,6 +21,7 @@ type PostgresConfig struct {
 }
 
 type Config struct {
+	AppProxy   AppProxyConfig
 	AdminProxy AdminProxyConfig
 	OpenAI     OpenAIConfig
 	Postgres   PostgresConfig

@@ -13,12 +13,19 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { InterviewerDto } from "@/dto/interview-dto";
+import { useRouter } from "next/navigation";
 
 interface InterviewChatSidebarProps {
   interviewer: InterviewerDto;
 }
 
 export function InterviewChatSidebar({ interviewer }: InterviewChatSidebarProps) {
+  const router = useRouter();
+
+  const endInterviewHandler = () => {
+    router.push("/portal");
+  };
+
   return (
     <div className="w-80 bg-white border-r border-gray-100 flex flex-col">
       <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
@@ -78,7 +85,7 @@ export function InterviewChatSidebar({ interviewer }: InterviewChatSidebarProps)
             <AlertDialogFooter>
               <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
               <AlertDialogAction
-                onClick={() => alert("not implemented yet")}
+                onClick={endInterviewHandler}
                 className="bg-[#E12D39] hover:bg-[#c0252f] rounded-lg"
               >
                 End Interview

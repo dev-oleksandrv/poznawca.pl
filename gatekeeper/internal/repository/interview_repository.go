@@ -49,7 +49,7 @@ func (r *interviewRepositoryImpl) Create(ctx context.Context, interview *model.I
 }
 
 func (r *interviewRepositoryImpl) Update(ctx context.Context, interview *model.Interview) (*model.Interview, error) {
-	if err := r.db.WithContext(ctx).Save(interview).Error; err != nil {
+	if err := r.db.WithContext(ctx).Updates(interview).Error; err != nil {
 		return nil, err
 	}
 	return interview, nil

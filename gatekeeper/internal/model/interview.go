@@ -13,6 +13,8 @@ type Interview struct {
 	InterviewerID *uuid.UUID   `gorm:"type:uuid;not null;index"`
 	Interviewer   *Interviewer `gorm:"foreignKey:InterviewerID;constraint:OnDelete:SET NULL;"`
 
+	Messages []*InterviewMessage `gorm:"foreignKey:InterviewID;constraint:OnDelete:CASCADE;"`
+
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }

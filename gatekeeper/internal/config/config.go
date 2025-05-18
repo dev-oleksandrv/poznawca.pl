@@ -26,10 +26,15 @@ type RedisConfig struct {
 	DB       int
 }
 
+type WebClientConfig struct {
+	Url string
+}
+
 type Config struct {
 	AppProxy   AppProxyConfig
 	AdminProxy AdminProxyConfig
 	OpenAI     OpenAIConfig
 	Postgres   PostgresConfig
 	Redis      RedisConfig
+	WebClient  WebClientConfig
 }

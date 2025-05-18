@@ -31,5 +31,7 @@ func LoadConfig() (*Config, error) {
 	config.Redis.Password = viper.GetString("REDIS_PASSWORD")
 	config.Redis.DB = viper.GetInt("REDIS_DB")
 
+	config.WebClient.Url = viper.GetString("WEB_CLIENT_URL")
+
 	return config, nil
 }

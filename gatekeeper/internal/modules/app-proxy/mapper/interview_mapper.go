@@ -12,6 +12,7 @@ func MapInterviewModelToOutput(interview *model.Interview) *dto.InterviewOutputD
 		Status:    interview.Status,
 		CreatedAt: date.FormatTime(interview.CreatedAt),
 		UpdatedAt: date.FormatTime(interview.UpdatedAt),
+		ThreadID:  interview.ThreadID,
 	}
 
 	if interview.Interviewer != nil {

@@ -6,7 +6,9 @@ import (
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/database"
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/modules/app-proxy/handler"
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/modules/app-proxy/service"
+	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/modules/app-proxy/ws"
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/repository"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/sashabaranov/go-openai"
 	"log/slog"
@@ -49,22 +51,44 @@ func main() {
 
 	interviewRepository := repository.NewInterviewRepository(db)
 	interviewerRepository := repository.NewInterviewerRepository(db)
+	interviewMessageRepository := repository.NewInterviewMessageRepository(db)
 
 	interviewCacheRepository := repository.NewInterviewCacheRepository(redisDb)
 	fmt.Println(interviewCacheRepository)
 
-	interviewService := service.NewInterviewService(openaiClient, interviewRepository, interviewerRepository)
+	interviewService := service.NewInterviewService(
+		openaiClient,
+		&cfg.OpenAI,
+		interviewRepository,
+		interviewerRepository,
+		interviewMessageRepository,
+	)
 
 	interviewHandler := handler.NewInterviewHandler(interviewService)
 
+	wsHandler := ws.NewHandler(interviewService)
+
 	router := gin.Default()
+	router.Use(cors.New(cors.Config{
+		AllowOriginFunc: func(origin string) bool {
+			return origin == cfg.WebClient.Url
+		},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowCredentials: true,
+	}))
+
+	wsGroup := router.Group("/ws")
+	{
+		wsGroup.GET("/interview", wsHandler.RunInterview)
+	}
 
 	apiGroup := router.Group("/api")
 
 	interviewGroup := apiGroup.Group("/interview")
 	{
 		interviewGroup.GET("/:id", interviewHandler.GetByID)
-		interviewGroup.POST("/", interviewHandler.Create)
+		interviewGroup.POST("", interviewHandler.Create)
 	}
 
 	if err := router.Run(fmt.Sprintf(":%d", cfg.AppProxy.Port)); err != nil {

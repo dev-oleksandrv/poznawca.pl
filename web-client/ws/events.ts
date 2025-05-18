@@ -1,3 +1,5 @@
+import { InterviewMessageDto } from "@/dto/interview-dto";
+
 export enum EventType {
   ClientMessageSent = "client_message_sent",
 
@@ -16,8 +18,7 @@ export interface ClientMessageSentEvent extends BaseEvent {
 
 export interface SystemMessageSentEvent extends BaseEvent {
   type: EventType.SystemMessageSent;
-  content_text: string;
-  tips_text: string;
+  details: InterviewMessageDto;
 }
 
 export interface SystemMessagePendingEvent extends BaseEvent {

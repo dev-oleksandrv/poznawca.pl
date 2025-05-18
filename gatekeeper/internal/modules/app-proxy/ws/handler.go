@@ -91,10 +91,11 @@ func (h *handlerImpl) RunInterview(c *gin.Context) {
 
 	go session.Write()
 
-	session.sendQueue <- &SystemMessageSentEvent{
-		BaseEvent:   BaseEvent{Type: SystemMessageSentEventType},
-		ContentText: interviewModel.Interviewer.EntryMessage,
-	}
+	session.AddToSendQueue(&SystemMessagePendingEvent{
+		BaseEvent: BaseEvent{Type: SystemMessagePendingEventType},
+	})
+
+	session.SaveInitialMessage()
 
 	session.Read()
 }

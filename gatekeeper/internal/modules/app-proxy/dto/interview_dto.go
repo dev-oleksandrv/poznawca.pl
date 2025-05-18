@@ -50,6 +50,17 @@ func (d *AIPromptInputDto) Validate() error {
 	return validate.Struct(d)
 }
 
+type CreateInitialMessageInputDto struct {
+	InterviewID uuid.UUID `json:"interview_id" validate:"required,uuid"`
+	ContentText string    `json:"content_text" validate:"required"`
+}
+
+func (d *CreateInitialMessageInputDto) Validate() error {
+	validate := validator.New()
+
+	return validate.Struct(d)
+}
+
 type AIPromptOutputDto struct {
 	Done             bool   `json:"done"`
 	Content          string `json:"content"`

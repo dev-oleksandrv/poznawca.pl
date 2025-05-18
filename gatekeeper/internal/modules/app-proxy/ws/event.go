@@ -1,5 +1,7 @@
 package ws
 
+import "github.com/dev-oleksandrv/poznawca/gatekeeper/internal/modules/app-proxy/dto"
+
 type EventType string
 
 const (
@@ -31,8 +33,7 @@ type SystemMessagePendingEvent struct {
 
 type SystemMessageSentEvent struct {
 	BaseEvent
-	ContentText string `json:"content_text"`
-	TipsText    string `json:"tips_text"`
+	Details dto.InterviewMessageOutputDto `json:"details"`
 }
 
 type SystemResultPendingEvent struct {

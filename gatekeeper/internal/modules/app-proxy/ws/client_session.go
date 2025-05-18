@@ -9,15 +9,22 @@ import (
 	"log/slog"
 )
 
-type ClientSession struct {
+type ClientSession interface {
+	SaveInitialMessage()
+	AddToSendQueue(msg interface{})
+	Read()
+	Write()
+}
+
+type clientSessionImpl struct {
 	socket           *websocket.Conn
 	sendQueue        chan interface{}
 	interview        *dto.InterviewOutputDto
 	interviewService service.InterviewService
 }
 
-func NewClientSession(socket *websocket.Conn, interviewService service.InterviewService, interview *dto.InterviewOutputDto) *ClientSession {
-	return &ClientSession{
+func NewClientSession(socket *websocket.Conn, interviewService service.InterviewService, interview *dto.InterviewOutputDto) ClientSession {
+	return &clientSessionImpl{
 		socket:           socket,
 		sendQueue:        make(chan interface{}, 10),
 		interview:        interview,
@@ -25,11 +32,29 @@ func NewClientSession(socket *websocket.Conn, interviewService service.Interview
 	}
 }
 
-func (s *ClientSession) AddToSendQueue(msg interface{}) {
+func (s *clientSessionImpl) SaveInitialMessage() {
+	message, err := s.interviewService.CreateInitialMessage(context.Background(), &dto.CreateInitialMessageInputDto{
+		InterviewID: s.interview.ID,
+		ContentText: s.interview.Interviewer.EntryMessage,
+	})
+	if err != nil {
+		slog.Error("error while creating initial message", "error", err)
+		return
+	}
+
+	event := &SystemMessageSentEvent{
+		BaseEvent: BaseEvent{Type: SystemMessageSentEventType},
+		Details:   *message,
+	}
+
+	s.AddToSendQueue(event)
+}
+
+func (s *clientSessionImpl) AddToSendQueue(msg interface{}) {
 	s.sendQueue <- msg
 }
 
-func (s *ClientSession) Read() {
+func (s *clientSessionImpl) Read() {
 	for {
 		_, msg, err := s.socket.ReadMessage()
 		if err != nil {
@@ -45,7 +70,7 @@ func (s *ClientSession) Read() {
 	}
 }
 
-func (s *ClientSession) Write() {
+func (s *clientSessionImpl) Write() {
 	defer func() {
 		s.socket.Close()
 		slog.Info("Write goroutine exiting")
@@ -65,7 +90,7 @@ func (s *ClientSession) Write() {
 	}
 }
 
-func (s *ClientSession) handleClientMessage(rawMsg []byte) {
+func (s *clientSessionImpl) handleClientMessage(rawMsg []byte) {
 	var baseEvent *BaseEvent
 	if err := json.Unmarshal(rawMsg, &baseEvent); err != nil {
 		slog.Error("cannot unmarshal message", "msg", rawMsg)
@@ -78,7 +103,7 @@ func (s *ClientSession) handleClientMessage(rawMsg []byte) {
 	}
 }
 
-func (s *ClientSession) handleClientMessageSentEvent(rawMsg []byte) {
+func (s *clientSessionImpl) handleClientMessageSentEvent(rawMsg []byte) {
 	var event *ClientMessageSentEvent
 	if err := json.Unmarshal(rawMsg, &event); err != nil {
 		slog.Error("cannot unmarshal message", "msg", rawMsg)
@@ -105,8 +130,7 @@ func (s *ClientSession) handleClientMessageSentEvent(rawMsg []byte) {
 	}
 
 	s.AddToSendQueue(&SystemMessageSentEvent{
-		BaseEvent:   BaseEvent{Type: SystemMessageSentEventType},
-		ContentText: outputMessage.ContentText,
-		TipsText:    outputMessage.TipsText,
+		BaseEvent: BaseEvent{Type: SystemMessageSentEventType},
+		Details:   *outputMessage,
 	})
 }

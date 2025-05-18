@@ -22,6 +22,7 @@ type InterviewService interface {
 	Create(ctx context.Context) (*dto.InterviewOutputDto, error)
 	UpdateStatus(ctx context.Context, input *dto.UpdateInterviewStatusInputDto) error
 	ProcessClientMessage(ctx context.Context, input *dto.ProcessClientMessageInputDto) (*dto.InterviewMessageOutputDto, error)
+	CreateInitialMessage(ctx context.Context, input *dto.CreateInitialMessageInputDto) (*dto.InterviewMessageOutputDto, error)
 }
 
 type interviewServiceImpl struct {
@@ -164,6 +165,19 @@ func (s *interviewServiceImpl) ProcessClientMessage(ctx context.Context, input *
 	}
 
 	return mapper.MapInterviewMessageModelToOutput(assistantMessage), err
+}
+
+func (s *interviewServiceImpl) CreateInitialMessage(ctx context.Context, input *dto.CreateInitialMessageInputDto) (*dto.InterviewMessageOutputDto, error) {
+	interviewMessage := &model.InterviewMessage{
+		ContentText: input.ContentText,
+		InterviewID: input.InterviewID,
+		Role:        model.InterviewMessageRoleInterviewer,
+	}
+	if _, err := s.interviewMessageRepository.Create(ctx, interviewMessage); err != nil {
+		return nil, err
+	}
+
+	return mapper.MapInterviewMessageModelToOutput(interviewMessage), nil
 }
 
 func (s *interviewServiceImpl) createAIThread(ctx context.Context, entryMessage string) (string, error) {

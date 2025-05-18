@@ -79,10 +79,14 @@ func (h *handlerImpl) RunInterview(c *gin.Context) {
 
 	defer func() {
 		slog.Info("closing connection and updating interview status", "interview_id", interviewModel.ID)
-		h.interviewService.UpdateStatus(c.Request.Context(), &dto.UpdateInterviewStatusInputDto{
+		err := h.interviewService.UpdateStatus(c.Request.Context(), &dto.UpdateInterviewStatusInputDto{
 			InterviewID: interviewModel.ID,
 			Status:      model.InterviewStatusAbandoned,
 		})
+
+		if err != nil {
+			slog.Error("failed to update interview status", "error", err)
+		}
 	}()
 
 	go session.Write()

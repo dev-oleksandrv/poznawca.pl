@@ -45,7 +45,6 @@ export default function InternalInterviewSetupPage() {
       <div className="flex-1 flex flex-col justify-center container mx-auto">
         <Card className="w-full bg-white rounded-2xl shadow-xl overflow-hidden border-0 p-0">
           <div className="flex flex-col md:flex-row h-[80vh] max-h-[600px]">
-            {/* Left side - Illustration/Info */}
             <div className="w-full md:w-5/12 bg-gradient-to-br from-[#E12D39] to-[#c0252f] p-8 flex flex-col justify-between text-white">
               <div>
                 <div className="bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center mb-6">

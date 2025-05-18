@@ -3,6 +3,7 @@ import { BaseEvent, ClientMessageSentEvent, EventType, SystemMessageSentEvent } 
 
 export enum WSManagerEventType {
   SystemMessageSent = "system_message_sent",
+  SystemMessagePending = "system_message_pending",
 }
 
 export class WSManager {

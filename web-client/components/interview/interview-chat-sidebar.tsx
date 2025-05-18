@@ -33,7 +33,6 @@ export function InterviewChatSidebar({ interviewer }: InterviewChatSidebarProps)
               {interviewer.name.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <div className="absolute bottom-3 right-0 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div>
         </div>
         <h2 className="font-bold text-xl text-[#0C3B5F]">{interviewer.name}</h2>
         <p className="text-sm text-gray-500 text-center mt-1">

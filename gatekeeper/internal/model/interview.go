@@ -10,7 +10,7 @@ type Interview struct {
 	ThreadID string          `gorm:"type:varchar(255);not null"`
 	Status   InterviewStatus `gorm:"type:varchar(50);not null;default:'pending'"`
 
-	InterviewerID *uuid.UUID   `gorm:"type:uuid;not null;index"`
+	InterviewerID *uuid.UUID   `gorm:"type:uuid"`
 	Interviewer   *Interviewer `gorm:"foreignKey:InterviewerID;constraint:OnDelete:SET NULL;"`
 
 	Messages []*InterviewMessage `gorm:"foreignKey:InterviewID;constraint:OnDelete:CASCADE;"`

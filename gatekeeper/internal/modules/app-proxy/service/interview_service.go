@@ -64,7 +64,7 @@ func (s *interviewServiceImpl) Create(ctx context.Context) (*dto.InterviewOutput
 		return nil, err
 	}
 
-	threadID, err := s.createAIThread(ctx, interviewer.EntryMessage)
+	threadID, err := s.createAIThread(ctx, interviewer.EntryMessage, interviewer.CharacterDescription)
 	if err != nil {
 		return nil, err
 	}
@@ -180,9 +180,13 @@ func (s *interviewServiceImpl) CreateInitialMessage(ctx context.Context, input *
 	return mapper.MapInterviewMessageModelToOutput(interviewMessage), nil
 }
 
-func (s *interviewServiceImpl) createAIThread(ctx context.Context, entryMessage string) (string, error) {
+func (s *interviewServiceImpl) createAIThread(ctx context.Context, entryMessage, characterDescription string) (string, error) {
 	aiThread, err := s.openaiClient.CreateThread(ctx, openai.ThreadRequest{
 		Messages: []openai.ThreadMessage{
+			{
+				Role:    openai.ThreadMessageRoleAssistant,
+				Content: fmt.Sprintf("I'm a real interviewer with the character: %s", characterDescription),
+			},
 			{
 				Role:    openai.ThreadMessageRoleAssistant,
 				Content: entryMessage,

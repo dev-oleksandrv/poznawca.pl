@@ -7,9 +7,11 @@ import (
 
 func MapInterviewerModelToOutput(model *model.Interviewer) *dto.InterviewerOutputDto {
 	return &dto.InterviewerOutputDto{
-		ID:           model.ID,
-		Name:         model.Name,
-		AvatarURL:    model.AvatarURL,
-		EntryMessage: model.EntryMessage,
+		ID:                                 model.ID,
+		Name:                               model.Name,
+		AvatarURL:                          model.AvatarURL,
+		EntryMessage:                       model.EntryMessage,
+		CharacterDescription:               model.CharacterDescription,
+		CharacterDescriptionTranslationKey: model.CharacterDescriptionTranslationKey,
 	}
 }

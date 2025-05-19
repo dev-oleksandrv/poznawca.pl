@@ -18,18 +18,22 @@ func MapInterviewerInputToModel(input *dto.InterviewerInputDto, existing *model.
 	existing.Name = input.Name
 	existing.AvatarURL = input.AvatarURL
 	existing.EntryMessage = input.EntryMessage
+	existing.CharacterDescription = input.CharacterDescription
+	existing.CharacterDescriptionTranslationKey = input.CharacterDescriptionTranslationKey
 
 	return existing, nil
 }
 
 func MapInterviewerModelToOutput(model *model.Interviewer) *dto.InterviewerOutputDto {
 	return &dto.InterviewerOutputDto{
-		ID:           model.ID,
-		Name:         model.Name,
-		AvatarURL:    model.AvatarURL,
-		EntryMessage: model.EntryMessage,
-		CreatedAt:    date.FormatTime(model.CreatedAt),
-		UpdatedAt:    date.FormatTime(model.UpdatedAt),
+		ID:                                 model.ID,
+		Name:                               model.Name,
+		AvatarURL:                          model.AvatarURL,
+		EntryMessage:                       model.EntryMessage,
+		CharacterDescription:               model.CharacterDescription,
+		CharacterDescriptionTranslationKey: model.CharacterDescriptionTranslationKey,
+		CreatedAt:                          date.FormatTime(model.CreatedAt),
+		UpdatedAt:                          date.FormatTime(model.UpdatedAt),
 	}
 }
 

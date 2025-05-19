@@ -6,11 +6,13 @@ import (
 )
 
 type Interviewer struct {
-	ID           uuid.UUID    `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	Name         string       `gorm:"type:varchar(255);not null"`
-	AvatarURL    string       `gorm:"type:varchar(255);not null"`
-	EntryMessage string       `gorm:"type:text;not null"`
-	Interviews   []*Interview `gorm:"foreignKey:InterviewerID;constraint:OnDelete:SET NULL;"`
-	CreatedAt    time.Time    `gorm:"autoCreateTime"`
-	UpdatedAt    time.Time    `gorm:"autoUpdateTime"`
+	ID                                 uuid.UUID    `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	Name                               string       `gorm:"type:varchar(255);not null"`
+	AvatarURL                          string       `gorm:"type:varchar(255);not null"`
+	EntryMessage                       string       `gorm:"type:text;not null"`
+	CharacterDescription               string       `gorm:"type:text;not null;default:''"`
+	CharacterDescriptionTranslationKey string       `gorm:"type:varchar(255);not null;default:''"`
+	Interviews                         []*Interview `gorm:"foreignKey:InterviewerID;constraint:OnDelete:SET NULL;"`
+	CreatedAt                          time.Time    `gorm:"autoCreateTime"`
+	UpdatedAt                          time.Time    `gorm:"autoUpdateTime"`
 }

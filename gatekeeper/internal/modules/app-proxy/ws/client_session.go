@@ -3,6 +3,7 @@ package ws
 import (
 	"context"
 	"encoding/json"
+	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/model"
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/modules/app-proxy/dto"
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/modules/app-proxy/service"
 	"github.com/gorilla/websocket"
@@ -33,7 +34,7 @@ func NewClientSession(socket *websocket.Conn, interviewService service.Interview
 }
 
 func (s *clientSessionImpl) SaveInitialMessage() {
-	message, err := s.interviewService.CreateInitialMessage(context.Background(), &dto.CreateInitialMessageInputDto{
+	message, err := s.interviewService.CreateInitialMessage(context.Background(), &dto.CreateInterviewInitialMessageInputDto{
 		InterviewID: s.interview.ID,
 		ContentText: s.interview.Interviewer.EntryMessage,
 	})
@@ -72,8 +73,11 @@ func (s *clientSessionImpl) Read() {
 
 func (s *clientSessionImpl) Write() {
 	defer func() {
-		s.socket.Close()
 		slog.Info("Write goroutine exiting")
+		err := s.socket.Close()
+		if err != nil {
+			slog.Error("error while closing socket", "error", err)
+		}
 	}()
 
 	for msgObj := range s.sendQueue {
@@ -114,7 +118,7 @@ func (s *clientSessionImpl) handleClientMessageSentEvent(rawMsg []byte) {
 		BaseEvent: BaseEvent{Type: SystemMessagePendingEventType},
 	})
 
-	outputMessage, err := s.interviewService.ProcessClientMessage(context.Background(), &dto.ProcessClientMessageInputDto{
+	outputMessage, isLastMessage, err := s.interviewService.ProcessClientMessage(context.Background(), &dto.ProcessInterviewClientMessageInputDto{
 		InterviewID: s.interview.ID,
 		ThreadID:    s.interview.ThreadID,
 		Content:     event.Content,
@@ -132,5 +136,42 @@ func (s *clientSessionImpl) handleClientMessageSentEvent(rawMsg []byte) {
 	s.AddToSendQueue(&SystemMessageSentEvent{
 		BaseEvent: BaseEvent{Type: SystemMessageSentEventType},
 		Details:   *outputMessage,
+	})
+
+	if isLastMessage == false {
+		return
+	}
+
+	s.AddToSendQueue(&SystemResultPendingEvent{
+		BaseEvent: BaseEvent{Type: SystemResultPendingEventType},
+	})
+
+	outputResult, err := s.interviewService.GenerateResults(context.Background(), &dto.GenerateInterviewResultsInputDto{
+		ThreadID:    s.interview.ThreadID,
+		InterviewID: s.interview.ID,
+	})
+	if err != nil {
+		slog.Error("error while generating results", "error", err)
+		return
+	}
+
+	if outputResult == nil {
+		slog.Error("empty output result")
+		return
+	}
+
+	s.AddToSendQueue(&SystemResultSentEvent{
+		BaseEvent:        BaseEvent{Type: SystemResultSentEventType},
+		TotalScore:       outputResult.TotalScore,
+		TotalFeedback:    outputResult.TotalFeedback,
+		GrammarScore:     outputResult.GrammarScore,
+		GrammarFeedback:  outputResult.GrammarFeedback,
+		AccuracyScore:    outputResult.AccuracyScore,
+		AccuracyFeedback: outputResult.AccuracyFeedback,
+	})
+
+	s.interviewService.UpdateStatus(context.Background(), &dto.UpdateInterviewStatusInputDto{
+		InterviewID: s.interview.ID,
+		Status:      model.InterviewStatusCompleted,
 	})
 }

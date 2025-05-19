@@ -52,16 +52,23 @@ func main() {
 	interviewRepository := repository.NewInterviewRepository(db)
 	interviewerRepository := repository.NewInterviewerRepository(db)
 	interviewMessageRepository := repository.NewInterviewMessageRepository(db)
+	interviewResultRepository := repository.NewInterviewResultRepository(db)
 
 	interviewCacheRepository := repository.NewInterviewCacheRepository(redisDb)
 	fmt.Println(interviewCacheRepository)
 
+	interviewAIService := service.NewInterviewAIService(
+		openaiClient,
+		&cfg.OpenAI,
+	)
 	interviewService := service.NewInterviewService(
 		openaiClient,
 		&cfg.OpenAI,
+		interviewAIService,
 		interviewRepository,
 		interviewerRepository,
 		interviewMessageRepository,
+		interviewResultRepository,
 	)
 
 	interviewHandler := handler.NewInterviewHandler(interviewService)

@@ -75,5 +75,6 @@ func autoMigrate(db *gorm.DB) error {
 		&model.Interviewer{},
 		&model.Interview{},
 		&model.InterviewMessage{},
+		&model.InterviewResult{},
 	)
 }

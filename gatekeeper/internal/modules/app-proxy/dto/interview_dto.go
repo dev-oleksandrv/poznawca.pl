@@ -27,58 +27,40 @@ func (d *UpdateInterviewStatusInputDto) Validate() error {
 	return validate.Struct(d)
 }
 
-type ProcessClientMessageInputDto struct {
+type ProcessInterviewClientMessageInputDto struct {
 	InterviewID uuid.UUID `json:"interview_id" validate:"required,uuid"`
 	ThreadID    string    `json:"thread_id" validate:"required"`
 	Content     string    `json:"content" validate:"required"`
 }
 
-func (d *ProcessClientMessageInputDto) Validate() error {
+func (d *ProcessInterviewClientMessageInputDto) Validate() error {
 	validate := validator.New()
 
 	return validate.Struct(d)
 }
 
-type AIPromptInputDto struct {
-	Content  string `json:"content" validate:"required"`
-	Language string `json:"language" validate:"required"`
-}
-
-func (d *AIPromptInputDto) Validate() error {
-	validate := validator.New()
-
-	return validate.Struct(d)
-}
-
-type CreateInitialMessageInputDto struct {
+type CreateInterviewInitialMessageInputDto struct {
 	InterviewID uuid.UUID `json:"interview_id" validate:"required,uuid"`
 	ContentText string    `json:"content_text" validate:"required"`
 }
 
-func (d *CreateInitialMessageInputDto) Validate() error {
+func (d *CreateInterviewInitialMessageInputDto) Validate() error {
 	validate := validator.New()
 
 	return validate.Struct(d)
 }
 
-type AIPromptOutputDto struct {
-	Done             bool   `json:"done"`
-	Content          string `json:"content"`
-	Tips             string `json:"tips"`
-	Translation      string `json:"translation"`
-	GrammarScore     int    `json:"grammar_score"`
-	GrammarFeedback  string `json:"grammar_feedback"`
-	AccuracyScore    int    `json:"accuracy_score"`
-	AccuracyFeedback string `json:"accuracy_feedback"`
-	TotalScore       int    `json:"total_score"`
-	TotalFeedback    string `json:"total_feedback"`
+type GenerateInterviewResultsInputDto struct {
+	InterviewID uuid.UUID `json:"interview_id" validate:"required,uuid"`
+	ThreadID    string    `json:"thread_id" validate:"required"`
 }
 
 type InterviewOutputDto struct {
-	ID          uuid.UUID             `json:"id"`
-	Status      model.InterviewStatus `json:"status"`
-	Interviewer *InterviewerOutputDto `json:"interviewer"`
-	ThreadID    string                `json:"thread_id"`
-	CreatedAt   string                `json:"created_at"`
-	UpdatedAt   string                `json:"updated_at"`
+	ID          uuid.UUID                 `json:"id"`
+	Status      model.InterviewStatus     `json:"status"`
+	Interviewer *InterviewerOutputDto     `json:"interviewer"`
+	Result      *InterviewResultOutputDto `json:"result"`
+	ThreadID    string                    `json:"thread_id"`
+	CreatedAt   string                    `json:"created_at"`
+	UpdatedAt   string                    `json:"updated_at"`
 }

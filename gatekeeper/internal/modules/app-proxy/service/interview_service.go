@@ -2,50 +2,53 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/config"
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/model"
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/modules/app-proxy/dto"
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/modules/app-proxy/mapper"
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/query"
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/repository"
-	"github.com/dev-oleksandrv/poznawca/gatekeeper/pkg/aiutils"
 	"github.com/google/uuid"
 	"github.com/sashabaranov/go-openai"
-	"log/slog"
 )
 
 type InterviewService interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*dto.InterviewOutputDto, error)
 	Create(ctx context.Context) (*dto.InterviewOutputDto, error)
 	UpdateStatus(ctx context.Context, input *dto.UpdateInterviewStatusInputDto) error
-	ProcessClientMessage(ctx context.Context, input *dto.ProcessClientMessageInputDto) (*dto.InterviewMessageOutputDto, error)
-	CreateInitialMessage(ctx context.Context, input *dto.CreateInitialMessageInputDto) (*dto.InterviewMessageOutputDto, error)
+	ProcessClientMessage(ctx context.Context, input *dto.ProcessInterviewClientMessageInputDto) (*dto.InterviewMessageOutputDto, bool, error)
+	GenerateResults(ctx context.Context, input *dto.GenerateInterviewResultsInputDto) (*dto.InterviewResultOutputDto, error)
+	CreateInitialMessage(ctx context.Context, input *dto.CreateInterviewInitialMessageInputDto) (*dto.InterviewMessageOutputDto, error)
 }
 
 type interviewServiceImpl struct {
 	openaiClient               *openai.Client
 	openaiConfig               *config.OpenAIConfig
+	interviewAIService         InterviewAIService
 	interviewRepository        repository.InterviewRepository
 	interviewerRepository      repository.InterviewerRepository
 	interviewMessageRepository repository.InterviewMessageRepository
+	interviewResultRepository  repository.InterviewResultRepository
 }
 
 func NewInterviewService(
 	openaiClient *openai.Client,
 	openaiConfig *config.OpenAIConfig,
+	interviewAIService InterviewAIService,
 	interviewRepository repository.InterviewRepository,
 	interviewerRepository repository.InterviewerRepository,
 	interviewMessageRepository repository.InterviewMessageRepository,
+	interviewResultRepository repository.InterviewResultRepository,
 ) InterviewService {
 	return &interviewServiceImpl{
 		openaiClient:               openaiClient,
 		openaiConfig:               openaiConfig,
+		interviewAIService:         interviewAIService,
 		interviewRepository:        interviewRepository,
 		interviewerRepository:      interviewerRepository,
 		interviewMessageRepository: interviewMessageRepository,
+		interviewResultRepository:  interviewResultRepository,
 	}
 }
 
@@ -64,7 +67,11 @@ func (s *interviewServiceImpl) Create(ctx context.Context) (*dto.InterviewOutput
 		return nil, err
 	}
 
-	threadID, err := s.createAIThread(ctx, interviewer.EntryMessage, interviewer.CharacterDescription)
+	createThreadInput := &dto.InterviewAICreateThreadInputDto{
+		EntryMessage:         interviewer.EntryMessage,
+		CharacterDescription: interviewer.CharacterDescription,
+	}
+	threadID, err := s.interviewAIService.CreateThread(ctx, createThreadInput)
 	if err != nil {
 		return nil, err
 	}
@@ -94,80 +101,64 @@ func (s *interviewServiceImpl) UpdateStatus(ctx context.Context, input *dto.Upda
 	return err
 }
 
-func (s *interviewServiceImpl) ProcessClientMessage(ctx context.Context, input *dto.ProcessClientMessageInputDto) (*dto.InterviewMessageOutputDto, error) {
+func (s *interviewServiceImpl) ProcessClientMessage(ctx context.Context, input *dto.ProcessInterviewClientMessageInputDto) (*dto.InterviewMessageOutputDto, bool, error) {
 	clientInterviewMessage := &model.InterviewMessage{
 		ContentText: input.Content,
 		InterviewID: input.InterviewID,
 		Role:        model.InterviewMessageRoleUser,
 	}
 	if _, err := s.interviewMessageRepository.Create(ctx, clientInterviewMessage); err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
-	prompt, err := json.Marshal(&dto.AIPromptInputDto{
-		Content: input.Content,
-		// TODO: Add support for multiple languages
+	aiOutput, err := s.interviewAIService.SendUserMessagePrompt(ctx, &dto.InterviewAIUserMessageUserAnswerDto{
+		ThreadID: input.ThreadID,
+		Content:  input.Content,
 		Language: "pl",
 	})
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
-	if _, err := s.openaiClient.CreateMessage(ctx, input.ThreadID, openai.MessageRequest{
-		Role:    openai.ChatMessageRoleUser,
-		Content: string(prompt),
-	}); err != nil {
-		return nil, err
+	assistantMessage := &model.InterviewMessage{
+		ContentText:            aiOutput.ContentText,
+		InterviewID:            input.InterviewID,
+		TipsText:               aiOutput.TipsText,
+		ContentTranslationText: aiOutput.ContentTranslationText,
+		Role:                   model.InterviewMessageRoleInterviewer,
+	}
+	if _, err := s.interviewMessageRepository.Create(ctx, assistantMessage); err != nil {
+		return nil, false, err
 	}
 
-	run, err := s.openaiClient.CreateRun(ctx, input.ThreadID, openai.RunRequest{
-		AssistantID: s.openaiConfig.InterviewAssistantID,
+	return mapper.MapInterviewMessageModelToOutput(assistantMessage), aiOutput.IsLastMessage, err
+}
+
+func (s *interviewServiceImpl) GenerateResults(ctx context.Context, input *dto.GenerateInterviewResultsInputDto) (*dto.InterviewResultOutputDto, error) {
+	aiOutput, err := s.interviewAIService.SendGetResultsPrompt(ctx, &dto.InterviewAIUserMessageGetResultsDto{
+		ThreadID: input.ThreadID,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	if _, err := aiutils.PollRunStatus(ctx, s.openaiClient, input.ThreadID, run.ID); err != nil {
+	resultModel := &model.InterviewResult{
+		InterviewID:      input.InterviewID,
+		GrammarScore:     aiOutput.GrammarScore,
+		GrammarFeedback:  aiOutput.GrammarFeedback,
+		AccuracyScore:    aiOutput.AccuracyScore,
+		AccuracyFeedback: aiOutput.AccuracyFeedback,
+		TotalScore:       aiOutput.TotalScore,
+		TotalFeedback:    aiOutput.TotalFeedback,
+	}
+	if _, err := s.interviewResultRepository.Create(ctx, resultModel); err != nil {
 		return nil, err
 	}
 
-	limit, order := 1, "desc"
-	assistantResponse, err := s.openaiClient.ListMessage(ctx, input.ThreadID, &limit, &order, nil, nil, &run.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	msgContent := assistantResponse.Messages[0].Content[0].Text.Value
-	if msgContent == "" {
-		return nil, fmt.Errorf("empty message content")
-	}
-
-	slog.Info("AI Response", "response", msgContent)
-
-	var output *dto.AIPromptOutputDto
-	if err := json.Unmarshal([]byte(msgContent), &output); err != nil {
-		return nil, err
-	}
-
-	if output.Done {
-		// TODO: Handle interview completion
-		return nil, nil
-	}
-
-	assistantMessage := &model.InterviewMessage{
-		ContentText: output.Content,
-		InterviewID: input.InterviewID,
-		TipsText:    output.Tips,
-		Role:        model.InterviewMessageRoleInterviewer,
-	}
-	if _, err := s.interviewMessageRepository.Create(ctx, assistantMessage); err != nil {
-		return nil, err
-	}
-
-	return mapper.MapInterviewMessageModelToOutput(assistantMessage), err
+	return mapper.MapInterviewResultModelToOutput(resultModel), nil
 }
 
-func (s *interviewServiceImpl) CreateInitialMessage(ctx context.Context, input *dto.CreateInitialMessageInputDto) (*dto.InterviewMessageOutputDto, error) {
+func (s *interviewServiceImpl) CreateInitialMessage(ctx context.Context, input *dto.CreateInterviewInitialMessageInputDto) (*dto.InterviewMessageOutputDto, error) {
 	interviewMessage := &model.InterviewMessage{
 		ContentText: input.ContentText,
 		InterviewID: input.InterviewID,
@@ -178,24 +169,4 @@ func (s *interviewServiceImpl) CreateInitialMessage(ctx context.Context, input *
 	}
 
 	return mapper.MapInterviewMessageModelToOutput(interviewMessage), nil
-}
-
-func (s *interviewServiceImpl) createAIThread(ctx context.Context, entryMessage, characterDescription string) (string, error) {
-	aiThread, err := s.openaiClient.CreateThread(ctx, openai.ThreadRequest{
-		Messages: []openai.ThreadMessage{
-			{
-				Role:    openai.ThreadMessageRoleAssistant,
-				Content: fmt.Sprintf("I'm a real interviewer with the character: %s", characterDescription),
-			},
-			{
-				Role:    openai.ThreadMessageRoleAssistant,
-				Content: entryMessage,
-			},
-		},
-	})
-	if err != nil {
-		return "", err
-	}
-
-	return aiThread.ID, nil
 }

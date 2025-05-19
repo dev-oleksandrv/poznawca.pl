@@ -42,5 +42,10 @@ type SystemResultPendingEvent struct {
 
 type SystemResultSentEvent struct {
 	BaseEvent
-	TotalScore int `json:"total_score"`
+	TotalScore       int    `json:"total_score"`
+	TotalFeedback    string `json:"total_feedback"`
+	GrammarScore     int    `json:"grammar_score"`
+	GrammarFeedback  string `json:"grammar_feedback"`
+	AccuracyScore    int    `json:"accuracy_score"`
+	AccuracyFeedback string `json:"accuracy_feedback"`
 }

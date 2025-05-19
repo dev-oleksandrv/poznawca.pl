@@ -1,0 +1,28 @@
+package repository
+
+import (
+	"context"
+	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/database"
+	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/model"
+)
+
+type InterviewResultRepository interface {
+	Create(ctx context.Context, interviewResult *model.InterviewResult) (*model.InterviewResult, error)
+}
+
+type interviewResultRepositoryImpl struct {
+	db *database.PGQLDatabase
+}
+
+func NewInterviewResultRepository(db *database.PGQLDatabase) InterviewResultRepository {
+	return &interviewResultRepositoryImpl{
+		db: db,
+	}
+}
+
+func (r *interviewResultRepositoryImpl) Create(ctx context.Context, interviewResult *model.InterviewResult) (*model.InterviewResult, error) {
+	if err := r.db.WithContext(ctx).Create(interviewResult).Error; err != nil {
+		return nil, err
+	}
+	return interviewResult, nil
+}

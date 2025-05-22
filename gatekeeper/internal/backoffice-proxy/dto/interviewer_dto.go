@@ -4,7 +4,7 @@ import "github.com/go-playground/validator/v10"
 
 var validate = validator.New()
 
-type InterviewerDto struct {
+type BackofficeInterviewerDto struct {
 	ID                        string `json:"id"`
 	Name                      string `json:"name"`
 	AvatarURL                 string `json:"avatar_url"`
@@ -15,7 +15,7 @@ type InterviewerDto struct {
 	UpdatedAt                 string `json:"updated_at"`
 }
 
-type CreateInterviewerRequestDto struct {
+type CreateBackofficeInterviewerRequestDto struct {
 	Name                      string `json:"name" validate:"required"`
 	AvatarURL                 string `json:"avatar_url" validate:"required,url"`
 	EntryMessage              string `json:"entry_message" validate:"required"`
@@ -23,11 +23,11 @@ type CreateInterviewerRequestDto struct {
 	DescriptionTranslationKey string `json:"description_translation_key" validate:"required"`
 }
 
-func (d *CreateInterviewerRequestDto) Validate() error {
+func (d *CreateBackofficeInterviewerRequestDto) Validate() error {
 	return validate.Struct(d)
 }
 
-type UpdateInterviewerRequestDto struct {
+type UpdateBackofficeInterviewerRequestDto struct {
 	Name                      *string `json:"name" validate:"omitempty"`
 	AvatarURL                 *string `json:"avatar_url" validate:"omitempty,url"`
 	EntryMessage              *string `json:"entry_message" validate:"omitempty"`
@@ -35,6 +35,6 @@ type UpdateInterviewerRequestDto struct {
 	DescriptionTranslationKey *string `json:"description_translation_key" validate:"omitempty"`
 }
 
-func (d *UpdateInterviewerRequestDto) Validate() error {
+func (d *UpdateBackofficeInterviewerRequestDto) Validate() error {
 	return validate.Struct(d)
 }

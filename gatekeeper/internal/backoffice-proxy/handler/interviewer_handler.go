@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type InterviewerHandler interface {
+type BackofficeInterviewerHandler interface {
 	GetList(c *gin.Context)
 	GetByID(c *gin.Context)
 	Create(c *gin.Context)
@@ -18,27 +18,27 @@ type InterviewerHandler interface {
 	Delete(c *gin.Context)
 }
 
-type interviewerHandler struct {
-	interviewerService service.InterviewerService
+type backofficeInterviewerHandlerImpl struct {
+	interviewerService service.BackofficeInterviewerService
 }
 
-func NewInterviewerHandler(interviewerService service.InterviewerService) InterviewerHandler {
-	return &interviewerHandler{
+func NewBackofficeInterviewerHandler(interviewerService service.BackofficeInterviewerService) BackofficeInterviewerHandler {
+	return &backofficeInterviewerHandlerImpl{
 		interviewerService: interviewerService,
 	}
 }
 
-func (h *interviewerHandler) GetList(c *gin.Context) {
+func (h *backofficeInterviewerHandlerImpl) GetList(c *gin.Context) {
 	interviewers, err := h.interviewerService.FindAll(c)
 	if err != nil {
 		c.JSON(500, gin.H{"error": "failed to get interviewers"})
 		return
 	}
 
-	c.JSON(200, gin.H{"data": mapper.MapInterviewerModelToDtoList(interviewers)})
+	c.JSON(200, gin.H{"data": mapper.MapInterviewerModelToBackofficeDtoList(interviewers)})
 }
 
-func (h *interviewerHandler) GetByID(c *gin.Context) {
+func (h *backofficeInterviewerHandlerImpl) GetByID(c *gin.Context) {
 	id := c.Param("id")
 	if err := uuid.Validate(id); err != nil {
 		c.JSON(400, gin.H{"error": errors.ErrInvalidID})
@@ -56,11 +56,11 @@ func (h *interviewerHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{"data": mapper.MapInterviewerModelToDto(interviewer)})
+	c.JSON(200, gin.H{"data": mapper.MapInterviewerModelToBackofficeDto(interviewer)})
 }
 
-func (h *interviewerHandler) Create(c *gin.Context) {
-	var inputDto *dto.CreateInterviewerRequestDto
+func (h *backofficeInterviewerHandlerImpl) Create(c *gin.Context) {
+	var inputDto *dto.CreateBackofficeInterviewerRequestDto
 	if err := c.ShouldBindJSON(&inputDto); err != nil {
 		c.JSON(400, gin.H{"error": err})
 		return
@@ -85,17 +85,17 @@ func (h *interviewerHandler) Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(201, gin.H{"data": mapper.MapInterviewerModelToDto(createdInterviewer)})
+	c.JSON(201, gin.H{"data": mapper.MapInterviewerModelToBackofficeDto(createdInterviewer)})
 }
 
-func (h *interviewerHandler) Update(c *gin.Context) {
+func (h *backofficeInterviewerHandlerImpl) Update(c *gin.Context) {
 	id := c.Param("id")
 	if err := uuid.Validate(id); err != nil {
 		c.JSON(400, gin.H{"error": errors.ErrInvalidID})
 		return
 	}
 
-	var inputDto *dto.UpdateInterviewerRequestDto
+	var inputDto *dto.UpdateBackofficeInterviewerRequestDto
 	if err := c.ShouldBindJSON(&inputDto); err != nil {
 		c.JSON(400, gin.H{"error": err})
 		return
@@ -139,10 +139,10 @@ func (h *interviewerHandler) Update(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{"data": mapper.MapInterviewerModelToDto(updatedInterviewer)})
+	c.JSON(200, gin.H{"data": mapper.MapInterviewerModelToBackofficeDto(updatedInterviewer)})
 }
 
-func (h *interviewerHandler) Delete(c *gin.Context) {
+func (h *backofficeInterviewerHandlerImpl) Delete(c *gin.Context) {
 	id := c.Param("id")
 	if err := uuid.Validate(id); err != nil {
 		c.JSON(400, gin.H{"error": errors.ErrInvalidID})

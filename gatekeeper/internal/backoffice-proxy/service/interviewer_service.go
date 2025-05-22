@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type InterviewerService interface {
+type BackofficeInterviewerService interface {
 	FindAll(ctx context.Context) ([]*model.InterviewerModel, error)
 	FindByID(ctx context.Context, id uuid.UUID) (*model.InterviewerModel, error)
 	Create(ctx context.Context, interviewer *model.InterviewerModel) (*model.InterviewerModel, error)
@@ -16,35 +16,35 @@ type InterviewerService interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
-type interviewerServiceImpl struct {
+type backofficeInterviewerServiceImpl struct {
 	interviewerRepository repository.InterviewerRepository
 }
 
-func NewInterviewerService(repository repository.InterviewerRepository) InterviewerService {
-	return &interviewerServiceImpl{
+func NewBackofficeInterviewerService(repository repository.InterviewerRepository) BackofficeInterviewerService {
+	return &backofficeInterviewerServiceImpl{
 		interviewerRepository: repository,
 	}
 }
 
-func (s *interviewerServiceImpl) FindAll(ctx context.Context) ([]*model.InterviewerModel, error) {
+func (s *backofficeInterviewerServiceImpl) FindAll(ctx context.Context) ([]*model.InterviewerModel, error) {
 	return s.interviewerRepository.FindAll(ctx)
 }
 
-func (s *interviewerServiceImpl) FindByID(ctx context.Context, id uuid.UUID) (*model.InterviewerModel, error) {
+func (s *backofficeInterviewerServiceImpl) FindByID(ctx context.Context, id uuid.UUID) (*model.InterviewerModel, error) {
 	if id == uuid.Nil {
 		return nil, errors.ErrInvalidID
 	}
 	return s.interviewerRepository.FindByID(ctx, id)
 }
 
-func (s *interviewerServiceImpl) Create(ctx context.Context, interviewer *model.InterviewerModel) (*model.InterviewerModel, error) {
+func (s *backofficeInterviewerServiceImpl) Create(ctx context.Context, interviewer *model.InterviewerModel) (*model.InterviewerModel, error) {
 	return s.interviewerRepository.Create(ctx, interviewer)
 }
 
-func (s *interviewerServiceImpl) Update(ctx context.Context, interviewer *model.InterviewerModel) (*model.InterviewerModel, error) {
+func (s *backofficeInterviewerServiceImpl) Update(ctx context.Context, interviewer *model.InterviewerModel) (*model.InterviewerModel, error) {
 	return s.interviewerRepository.Update(ctx, interviewer)
 }
 
-func (s *interviewerServiceImpl) Delete(ctx context.Context, id uuid.UUID) error {
+func (s *backofficeInterviewerServiceImpl) Delete(ctx context.Context, id uuid.UUID) error {
 	return s.interviewerRepository.Delete(ctx, id)
 }

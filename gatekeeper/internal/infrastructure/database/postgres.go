@@ -73,5 +73,8 @@ func setupUUIDExtension(db *gorm.DB) error {
 func autoMigrate(db *gorm.DB) error {
 	return db.AutoMigrate(
 		&model.InterviewerModel{},
+		&model.InterviewModel{},
+		&model.InterviewMessage{},
+		&model.InterviewResult{},
 	)
 }

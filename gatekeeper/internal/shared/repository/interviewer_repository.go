@@ -12,6 +12,7 @@ import (
 type InterviewerRepository interface {
 	FindAll(ctx context.Context) ([]*model.InterviewerModel, error)
 	FindByID(ctx context.Context, id uuid.UUID) (*model.InterviewerModel, error)
+	FindRandom(ctx context.Context) (*model.InterviewerModel, error)
 	Create(ctx context.Context, interviewer *model.InterviewerModel) (*model.InterviewerModel, error)
 	Update(ctx context.Context, interviewer *model.InterviewerModel) (*model.InterviewerModel, error)
 	Delete(ctx context.Context, id uuid.UUID) error
@@ -44,6 +45,14 @@ func (r *interviewerRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) 
 		return nil, err
 	}
 	return &interviewer, nil
+}
+
+func (r *interviewerRepositoryImpl) FindRandom(ctx context.Context) (*model.InterviewerModel, error) {
+	var interviewer *model.InterviewerModel
+	if err := r.db.WithContext(ctx).Order("random()").First(&interviewer).Error; err != nil {
+		return nil, err
+	}
+	return interviewer, nil
 }
 
 func (r *interviewerRepositoryImpl) Create(ctx context.Context, interviewer *model.InterviewerModel) (*model.InterviewerModel, error) {

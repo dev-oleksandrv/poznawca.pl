@@ -34,16 +34,24 @@ func main() {
 	}
 
 	interviewerRepository := repository.NewInterviewerRepository(db)
+	interviewRepository := repository.NewInterviewRepository(db)
 
 	interviewerService := service.NewAppInterviewerService(interviewerRepository)
+	interviewService := service.NewAppInterviewService(interviewRepository)
 
 	interviewerHandler := handler.NewAppInterviewerHandler(interviewerService)
+	interviewHandler := handler.NewAppInterviewHandler(interviewService, interviewerService)
 
 	router := gin.Default()
 	apiGroup := router.Group("/api")
 	interviewerGroup := apiGroup.Group("/interviewer")
 	{
 		interviewerGroup.GET("/list", interviewerHandler.GetList)
+	}
+	interviewGroup := apiGroup.Group("/interview")
+	{
+		interviewGroup.GET("/:id", interviewHandler.GetByID)
+		interviewGroup.POST("/", interviewHandler.Create)
 	}
 
 	if err := router.Run(fmt.Sprintf(":%d", cfg.AppProxy.Port)); err != nil {

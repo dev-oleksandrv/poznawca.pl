@@ -6,9 +6,16 @@ import { Card } from "@/components/ui/card";
 import { ArrowLeftIcon, ArrowRightIcon, Loader2Icon, MessageSquareIcon } from "lucide-react";
 import Link from "next/link";
 import { useSetupInterviewHandler } from "@/hooks/use-setup-interview-handler";
+import { DashboardInterviewSetupInterviewerSelector } from "@/components/dashboard/dashboard-interview-setup-interviewer-selector";
+import { InterviewerDto } from "@/dto/interviewer-dto";
 
-export function DashboardInterviewSetup() {
-  const { error, isPending, setupInterviewHandler } = useSetupInterviewHandler();
+interface DashboardInterviewSetupProps {
+  interviewers: InterviewerDto[];
+}
+
+export function DashboardInterviewSetup({ interviewers }: DashboardInterviewSetupProps) {
+  const { error, isPending, selectedInterviewer, selectInterviewerHandler, setupInterviewHandler } =
+    useSetupInterviewHandler();
 
   return (
     <Card className="flex flex-col flex-1 w-full bg-white rounded-2xl shadow-xl overflow-hidden border-0 p-0">
@@ -113,6 +120,14 @@ export function DashboardInterviewSetup() {
           </div>
 
           <div className="mt-4">
+            <div className="mb-2">
+              <DashboardInterviewSetupInterviewerSelector
+                options={interviewers}
+                selected={selectedInterviewer}
+                onSelect={selectInterviewerHandler}
+              />
+            </div>
+
             {error && (
               <Alert variant="destructive" className="mb-2">
                 <AlertTitle>Cannot start an interview</AlertTitle>

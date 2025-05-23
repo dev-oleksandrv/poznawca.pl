@@ -16,5 +16,5 @@ export default async function DashboardInterviewSetupPage() {
     return <DashboardInterviewSetupError />;
   }
 
-  return <DashboardInterviewSetup />;
+  return <DashboardInterviewSetup interviewers={interviewers} />;
 }

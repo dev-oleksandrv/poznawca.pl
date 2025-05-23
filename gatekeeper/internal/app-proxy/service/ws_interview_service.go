@@ -41,6 +41,10 @@ func (s *appWSInterviewServiceImpl) ActivateInterview(ctx context.Context, inter
 		return nil, errors.ErrInterviewNotFound
 	}
 
+	if interview.Status != model.InterviewStatusPending {
+		return nil, errors.ErrInvalidInitialStatus
+	}
+
 	interview.Status = model.InterviewStatusActive
 	if err := s.interviewRepository.UpdateColumn(ctx, interview.ID, "status", model.InterviewStatusActive); err != nil {
 		return nil, err

@@ -36,12 +36,15 @@ func main() {
 
 	interviewerRepository := repository.NewInterviewerRepository(db)
 	interviewRepository := repository.NewInterviewRepository(db)
+	interviewMessageRepository := repository.NewInterviewMessageRepository(db)
 
 	interviewerService := service.NewAppInterviewerService(interviewerRepository)
 	interviewService := service.NewAppInterviewService(interviewRepository)
+	wsInterviewService := service.NewAppWSInterviewService(interviewRepository, interviewMessageRepository)
 
 	interviewerHandler := handler.NewAppInterviewerHandler(interviewerService)
 	interviewHandler := handler.NewAppInterviewHandler(interviewService, interviewerService)
+	wsInterviewHandler := handler.NewAppWSInterviewHandler(wsInterviewService)
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -61,6 +64,10 @@ func main() {
 	{
 		interviewGroup.GET("/:id", interviewHandler.GetByID)
 		interviewGroup.POST("", interviewHandler.Create)
+	}
+	wsGroup := router.Group("/ws")
+	{
+		wsGroup.GET("/interview", wsInterviewHandler.RunInterview)
 	}
 
 	if err := router.Run(fmt.Sprintf(":%d", cfg.AppProxy.Port)); err != nil {

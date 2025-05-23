@@ -11,6 +11,8 @@ import (
 type InterviewRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID, opts ...query.InterviewQueryOption) (*model.InterviewModel, error)
 	Create(ctx context.Context, interview *model.InterviewModel) (*model.InterviewModel, error)
+	Update(ctx context.Context, interview *model.InterviewModel) (*model.InterviewModel, error)
+	UpdateColumn(ctx context.Context, id uuid.UUID, columnName string, value interface{}) error
 }
 
 type interviewRepositoryImpl struct {
@@ -45,4 +47,15 @@ func (r *interviewRepositoryImpl) Create(ctx context.Context, interview *model.I
 		return nil, err
 	}
 	return interview, nil
+}
+
+func (r *interviewRepositoryImpl) Update(ctx context.Context, interview *model.InterviewModel) (*model.InterviewModel, error) {
+	if err := r.db.WithContext(ctx).Updates(interview).Error; err != nil {
+		return nil, err
+	}
+	return interview, nil
+}
+
+func (r *interviewRepositoryImpl) UpdateColumn(ctx context.Context, id uuid.UUID, columnName string, value interface{}) error {
+	return r.db.WithContext(ctx).Model(&model.InterviewModel{ID: id}).Update(columnName, value).Error
 }

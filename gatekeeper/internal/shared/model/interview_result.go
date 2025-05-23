@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type InterviewResult struct {
+type InterviewResultModel struct {
 	ID               uuid.UUID       `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
 	GrammarScore     int             `gorm:"type:int;not null"`
 	AccuracyScore    int             `gorm:"type:int;not null"`

@@ -12,6 +12,8 @@ import (
 type AppInterviewService interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*model.InterviewModel, error)
 	Create(ctx context.Context, interview *model.InterviewModel) (*model.InterviewModel, error)
+	Update(ctx context.Context, interview *model.InterviewModel) (*model.InterviewModel, error)
+	UpdateStatus(ctx context.Context, interview *model.InterviewModel) error
 }
 
 type appInterviewServiceImpl struct {
@@ -47,4 +49,28 @@ func (s *appInterviewServiceImpl) Create(ctx context.Context, interview *model.I
 	}
 
 	return s.interviewRepository.Create(ctx, interview)
+}
+
+func (s *appInterviewServiceImpl) Update(ctx context.Context, interview *model.InterviewModel) (*model.InterviewModel, error) {
+	if interview.ID == uuid.Nil {
+		return nil, errors.ErrInvalidID
+	}
+
+	if interview.Status == model.InterviewStatusCompleted || interview.Status == model.InterviewStatusAbandoned {
+		return nil, errors.ErrInvalidStatusToUpdate
+	}
+
+	return s.interviewRepository.Update(ctx, interview)
+}
+
+func (s *appInterviewServiceImpl) UpdateStatus(ctx context.Context, interview *model.InterviewModel) error {
+	if interview.ID == uuid.Nil {
+		return errors.ErrInvalidID
+	}
+
+	if interview.Status != model.InterviewStatusCompleted && interview.Status != model.InterviewStatusAbandoned {
+		return errors.ErrInvalidStatusToUpdate
+	}
+
+	return s.interviewRepository.UpdateColumn(ctx, interview.ID, "status", interview.Status)
 }

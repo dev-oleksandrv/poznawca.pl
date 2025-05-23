@@ -21,6 +21,8 @@ func LoadConfig() (*Config, error) {
 	config.Postgres.Url = viper.GetString("POSTGRES_URL")
 	config.Postgres.AutoMigrateEnabled = viper.GetBool("POSTGRES_AUTO_MIGRATE_ENABLED")
 	config.WebClient.Url = viper.GetString("WEB_CLIENT_URL")
+	config.OpenAI.APIKey = viper.GetString("OPENAI_API_KEY")
+	config.OpenAI.InterviewAssistantID = viper.GetString("OPENAI_INTERVIEW_ASSISTANT_ID")
 
 	return config, nil
 }

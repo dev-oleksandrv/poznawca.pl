@@ -9,6 +9,7 @@ import (
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/shared/repository"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/sashabaranov/go-openai"
 	"log/slog"
 	"os"
 )
@@ -34,12 +35,15 @@ func main() {
 		os.Exit(1)
 	}
 
+	openaiClient := openai.NewClient(cfg.OpenAI.APIKey)
+
 	interviewerRepository := repository.NewInterviewerRepository(db)
 	interviewRepository := repository.NewInterviewRepository(db)
 	interviewMessageRepository := repository.NewInterviewMessageRepository(db)
 
+	openaiInterviewService := service.NewAppOpenAIInterviewService(openaiClient)
 	interviewerService := service.NewAppInterviewerService(interviewerRepository)
-	interviewService := service.NewAppInterviewService(interviewRepository)
+	interviewService := service.NewAppInterviewService(interviewRepository, openaiInterviewService)
 	wsInterviewService := service.NewAppWSInterviewService(interviewRepository, interviewMessageRepository)
 
 	interviewerHandler := handler.NewAppInterviewerHandler(interviewerService)

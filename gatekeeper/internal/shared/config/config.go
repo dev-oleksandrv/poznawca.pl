@@ -22,9 +22,15 @@ type WebClientConfig struct {
 	Url string
 }
 
+type OpenAIConfig struct {
+	APIKey               string
+	InterviewAssistantID string
+}
+
 type Config struct {
 	AppProxy        AppProxyConfig
 	BackofficeProxy BackofficeProxyConfig
 	Postgres        PostgresConfig
 	WebClient       WebClientConfig
+	OpenAI          OpenAIConfig
 }

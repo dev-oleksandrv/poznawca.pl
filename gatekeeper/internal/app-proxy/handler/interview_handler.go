@@ -72,11 +72,12 @@ func (h *appInterviewHandlerImpl) Create(c *gin.Context) {
 		return
 	}
 
-	interview := &model.InterviewModel{
+	interview, err := h.interviewService.Create(c.Request.Context(), &model.InterviewModel{
 		Status:        model.InterviewStatusPending,
 		InterviewerID: &interviewer.ID,
-	}
-	if _, err := h.interviewService.Create(c.Request.Context(), interview); err != nil {
+		Interviewer:   interviewer,
+	})
+	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/app-proxy/dto"
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/shared/errors"
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/shared/model"
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/shared/query"
@@ -17,12 +18,14 @@ type AppInterviewService interface {
 }
 
 type appInterviewServiceImpl struct {
-	interviewRepository repository.InterviewRepository
+	interviewRepository    repository.InterviewRepository
+	openaiInterviewService AppOpenAIInterviewService
 }
 
-func NewAppInterviewService(interviewRepository repository.InterviewRepository) AppInterviewService {
+func NewAppInterviewService(interviewRepository repository.InterviewRepository, openaiInterviewService AppOpenAIInterviewService) AppInterviewService {
 	return &appInterviewServiceImpl{
-		interviewRepository: interviewRepository,
+		interviewRepository:    interviewRepository,
+		openaiInterviewService: openaiInterviewService,
 	}
 }
 
@@ -47,6 +50,20 @@ func (s *appInterviewServiceImpl) Create(ctx context.Context, interview *model.I
 	if interview.InterviewerID == nil || *interview.InterviewerID == uuid.Nil {
 		return nil, errors.ErrInvalidID
 	}
+
+	if interview.Interviewer == nil {
+		return nil, errors.ErrNoInterviewerAttached
+	}
+
+	threadRes, err := s.openaiInterviewService.CreateThread(ctx, &dto.AppOpenAICreateInterviewRequestDto{
+		Description:  interview.Interviewer.Description,
+		EntryMessage: interview.Interviewer.EntryMessage,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	interview.ThreadID = threadRes.ThreadID
 
 	return s.interviewRepository.Create(ctx, interview)
 }

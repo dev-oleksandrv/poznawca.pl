@@ -7,6 +7,7 @@ import (
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/infrastructure/database"
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/shared/config"
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/shared/repository"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"log/slog"
 	"os"
@@ -43,6 +44,14 @@ func main() {
 	interviewHandler := handler.NewAppInterviewHandler(interviewService, interviewerService)
 
 	router := gin.Default()
+	router.Use(cors.New(cors.Config{
+		AllowOriginFunc: func(origin string) bool {
+			return origin == cfg.WebClient.Url
+		},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowCredentials: true,
+	}))
 	apiGroup := router.Group("/api")
 	interviewerGroup := apiGroup.Group("/interviewer")
 	{
@@ -51,7 +60,7 @@ func main() {
 	interviewGroup := apiGroup.Group("/interview")
 	{
 		interviewGroup.GET("/:id", interviewHandler.GetByID)
-		interviewGroup.POST("/", interviewHandler.Create)
+		interviewGroup.POST("", interviewHandler.Create)
 	}
 
 	if err := router.Run(fmt.Sprintf(":%d", cfg.AppProxy.Port)); err != nil {

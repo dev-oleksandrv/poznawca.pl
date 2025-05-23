@@ -18,8 +18,13 @@ type PostgresConfig struct {
 	AutoMigrateEnabled bool
 }
 
+type WebClientConfig struct {
+	Url string
+}
+
 type Config struct {
 	AppProxy        AppProxyConfig
 	BackofficeProxy BackofficeProxyConfig
 	Postgres        PostgresConfig
+	WebClient       WebClientConfig
 }

@@ -20,6 +20,7 @@ func LoadConfig() (*Config, error) {
 	config.BackofficeProxy.Env = viper.GetString("BACKOFFICE_PROXY_ENV")
 	config.Postgres.Url = viper.GetString("POSTGRES_URL")
 	config.Postgres.AutoMigrateEnabled = viper.GetBool("POSTGRES_AUTO_MIGRATE_ENABLED")
+	config.WebClient.Url = viper.GetString("WEB_CLIENT_URL")
 
 	return config, nil
 }

@@ -13,6 +13,7 @@ func MapInterviewMessageModelToAppDto(interviewMessage *model.InterviewMessageMo
 		TipsText:               interviewMessage.TipsText,
 		Role:                   string(interviewMessage.Role),
 		Type:                   string(interviewMessage.Type),
+		IsLastMessage:          interviewMessage.IsLastMessage,
 		CreatedAt:              interviewMessage.CreatedAt.Format("2006-01-02 15:04:05"),
 	}
 }

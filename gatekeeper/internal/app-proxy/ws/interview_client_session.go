@@ -143,6 +143,8 @@ func (s *appInterviewClientSessionImpl) handleClientMessage(rawMsg []byte) {
 	switch baseEvent.Type {
 	case event.AppInterviewEventUserMessageSentType:
 		s.handleUserMessageSentEvent(rawMsg)
+	case event.AppInterviewEventUserCompleteInterviewType:
+		s.handleUserCompleteInterviewEvent(rawMsg)
 	}
 }
 
@@ -168,4 +170,93 @@ func (s *appInterviewClientSessionImpl) handleUserMessageSentEvent(rawMsg []byte
 	s.AddToSendQueue(&event.AppInterviewInterviewerMessagePendingEvent{
 		AppBaseInterviewEvent: event.AppBaseInterviewEvent{Type: event.AppInterviewEventInterviewerMessagePendingType},
 	})
+
+	interviewerMessage, err := s.service.ProcessMessageWithOpenAI(s.context, s.interview.ThreadID, userMessage)
+	if err != nil {
+		s.logger.Error("error while processing user message with OpenAI", "error", err)
+		s.sendErrorMessage(errors.InterviewMessageErrorKeyFailedToProcessMessage)
+		return
+	}
+
+	s.AddToSendQueue(&event.AppInterviewInterviewerMessageSentEvent{
+		AppBaseInterviewEvent: event.AppBaseInterviewEvent{Type: event.AppInterviewEventInterviewerMessageSentType},
+		Data:                  *mapper.MapInterviewMessageModelToAppDto(interviewerMessage),
+	})
+
+	if interviewerMessage.IsLastMessage == false {
+		return
+	}
+
+	s.AddToSendQueue(&event.AppInterviewResultsPendingEvent{
+		AppBaseInterviewEvent: event.AppBaseInterviewEvent{Type: event.AppInterviewEventResultsPendingType},
+	})
+
+	interviewResult, err := s.service.GetResultsWithOpenAI(s.context, s.interview.ID, s.interview.ThreadID)
+	if err != nil {
+		s.logger.Error("error while getting interview results", "error", err)
+		s.sendErrorMessage(errors.InterviewMessageErrorKeyFailedToGetResults)
+		return
+	}
+
+	s.AddToSendQueue(&event.AppInterviewResultsSentEvent{
+		AppBaseInterviewEvent: event.AppBaseInterviewEvent{Type: event.AppInterviewEventResultsSentType},
+		Data:                  *mapper.MapInterviewResultToAppDto(interviewResult),
+	})
+
+	if err := s.service.CompleteInterview(s.context, s.interview); err != nil {
+		s.logger.Error("error while completing interview", "error", err)
+		s.sendErrorMessage(errors.InterviewMessageErrorKeyFailedToCompleteInterview)
+		return
+	}
+
+	s.AddToSendQueue(&event.AppInterviewCompletedEvent{
+		AppBaseInterviewEvent: event.AppBaseInterviewEvent{Type: event.AppInterviewEventInterviewCompletedType},
+	})
+
+	if err := s.socket.Close(); err != nil {
+		s.logger.Error("error while closing socket", "error", err)
+		return
+	}
+}
+
+func (s *appInterviewClientSessionImpl) handleUserCompleteInterviewEvent(rawMsg []byte) {
+	s.logger.Info("handleUserCompleteInterviewEvent", "rawMsg", string(rawMsg))
+
+	isAvailableToComplete, err := s.service.CheckInterviewCompleteAvailability(s.context, s.interview)
+	if err != nil || !isAvailableToComplete {
+		s.logger.Error("error while checking interview complete availability", "error", err)
+		s.sendErrorMessage(errors.InterviewMessageErrorKeyFailedToCheckCompleteAvailability)
+		return
+	}
+
+	s.AddToSendQueue(&event.AppInterviewResultsPendingEvent{
+		AppBaseInterviewEvent: event.AppBaseInterviewEvent{Type: event.AppInterviewEventResultsPendingType},
+	})
+
+	interviewResult, err := s.service.GetResultsWithOpenAI(s.context, s.interview.ID, s.interview.ThreadID)
+	if err != nil {
+		s.logger.Error("error while getting interview results", "error", err)
+		s.sendErrorMessage(errors.InterviewMessageErrorKeyFailedToGetResults)
+		return
+	}
+
+	s.AddToSendQueue(&event.AppInterviewResultsSentEvent{
+		AppBaseInterviewEvent: event.AppBaseInterviewEvent{Type: event.AppInterviewEventResultsSentType},
+		Data:                  *mapper.MapInterviewResultToAppDto(interviewResult),
+	})
+
+	if err := s.service.CompleteInterview(s.context, s.interview); err != nil {
+		s.logger.Error("error while completing interview", "error", err)
+		s.sendErrorMessage(errors.InterviewMessageErrorKeyFailedToCompleteInterview)
+		return
+	}
+
+	s.AddToSendQueue(&event.AppInterviewCompletedEvent{
+		AppBaseInterviewEvent: event.AppBaseInterviewEvent{Type: event.AppInterviewEventInterviewCompletedType},
+	})
+
+	if err := s.socket.Close(); err != nil {
+		s.logger.Error("error while closing socket", "error", err)
+		return
+	}
 }

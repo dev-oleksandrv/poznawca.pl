@@ -5,9 +5,11 @@ import "github.com/go-playground/validator/v10"
 var validate = validator.New()
 
 type AppInterviewDto struct {
-	ID          string             `json:"id"`
-	Status      string             `json:"status"`
-	Interviewer *AppInterviewerDto `json:"interviewer,omitempty"`
+	ID          string                    `json:"id"`
+	Status      string                    `json:"status"`
+	Interviewer *AppInterviewerDto        `json:"interviewer"`
+	Result      *AppInterviewResultDto    `json:"result"`
+	Messages    []*AppInterviewMessageDto `json:"messages"`
 }
 
 type CreateAppInterviewRequestDto struct {

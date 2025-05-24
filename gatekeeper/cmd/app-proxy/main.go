@@ -40,11 +40,17 @@ func main() {
 	interviewerRepository := repository.NewInterviewerRepository(db)
 	interviewRepository := repository.NewInterviewRepository(db)
 	interviewMessageRepository := repository.NewInterviewMessageRepository(db)
+	interviewResultRepository := repository.NewInterviewResultRepository(db)
 
-	openaiInterviewService := service.NewAppOpenAIInterviewService(openaiClient)
+	openaiInterviewService := service.NewAppOpenAIInterviewService(&cfg.OpenAI, openaiClient)
 	interviewerService := service.NewAppInterviewerService(interviewerRepository)
 	interviewService := service.NewAppInterviewService(interviewRepository, openaiInterviewService)
-	wsInterviewService := service.NewAppWSInterviewService(interviewRepository, interviewMessageRepository)
+	wsInterviewService := service.NewAppWSInterviewService(&service.NewAppWSInterviewServiceConfig{
+		InterviewRepository:        interviewRepository,
+		InterviewMessageRepository: interviewMessageRepository,
+		InterviewResultRepository:  interviewResultRepository,
+		OpenAIInterviewService:     openaiInterviewService,
+	})
 
 	interviewerHandler := handler.NewAppInterviewerHandler(interviewerService)
 	interviewHandler := handler.NewAppInterviewHandler(interviewService, interviewerService)

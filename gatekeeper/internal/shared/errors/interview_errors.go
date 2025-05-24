@@ -8,4 +8,5 @@ var (
 	ErrInterviewNotFound     = errors.New("interview not found")
 	ErrEmptyContentText      = errors.New("content text cannot be empty")
 	ErrNoInterviewerAttached = errors.New("no interviewer attached")
+	ErrInvalidMessage        = errors.New("invalid message")
 )

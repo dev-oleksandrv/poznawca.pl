@@ -34,7 +34,7 @@ func (s *appInterviewServiceImpl) FindByID(ctx context.Context, id uuid.UUID) (*
 		return nil, errors.ErrInvalidID
 	}
 
-	interview, err := s.interviewRepository.FindByID(ctx, id, query.InterviewQueryWithInterviewer())
+	interview, err := s.interviewRepository.FindByID(ctx, id, query.InterviewQueryWithInterviewer(), query.InterviewQueryWithMessages(), query.InterviewQueryWithResult())
 	if err != nil {
 		return nil, err
 	}

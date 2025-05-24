@@ -7,5 +7,6 @@ type AppInterviewMessageDto struct {
 	TipsText               string `json:"tips_text"`
 	Role                   string `json:"role"`
 	Type                   string `json:"type"`
+	IsLastMessage          bool   `json:"is_last_message"`
 	CreatedAt              string `json:"created_at"`
 }

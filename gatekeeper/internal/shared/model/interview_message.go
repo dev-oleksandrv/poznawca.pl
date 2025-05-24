@@ -12,6 +12,7 @@ type InterviewMessageModel struct {
 	TipsText               string               `gorm:"type:text;not null;default:''"`
 	Role                   InterviewMessageRole `gorm:"type:varchar(50);not null"`
 	Type                   InterviewMessageType `gorm:"type:varchar(50);not null;default:'default'"`
+	IsLastMessage          bool                 `gorm:"type:boolean;not null;default:false"`
 	InterviewID            uuid.UUID            `gorm:"type:uuid;not null;index"`
 	Interview              *InterviewModel      `gorm:"foreignKey:InterviewID;constraint:OnDelete:CASCADE;"`
 	CreatedAt              time.Time            `gorm:"autoCreateTime"`

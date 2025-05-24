@@ -63,6 +63,7 @@ func (h *appWSInterviewHandlerImpl) RunInterview(c *gin.Context) {
 	}
 
 	clientSession := ws.NewAppInterviewClientSession(&ws.NewAppInterviewClientSessionConfig{
+		Context:   c.Request.Context(),
 		Socket:    socket,
 		Interview: interviewModel,
 		Service:   h.service,

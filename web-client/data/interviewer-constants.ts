@@ -7,3 +7,5 @@ export const RANDOM_INTERVIEWER: InterviewerDto = {
   description: "Let us choose an interviewer for you!",
   description_translation_key: "interviewer_random",
 };
+
+export const INTERVIEW_MIN_MESSAGES_BEFORE_COMPLETION = 5;

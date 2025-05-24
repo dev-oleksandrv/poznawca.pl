@@ -11,8 +11,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { CheckIcon, ChevronDownIcon } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { RANDOM_INTERVIEWER } from "@/data/interviewer-constants";
+import { TextWithPopover } from "@/components/ui/text-with-popover";
 
 interface DashboardInterviewSetupInterviewerSelectorProps {
   options: InterviewerDto[];
@@ -27,7 +28,12 @@ export function DashboardInterviewSetupInterviewerSelector({
 }: DashboardInterviewSetupInterviewerSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const normalizedInterviewer = selected ?? RANDOM_INTERVIEWER;
+  const displayInterviewer = useMemo(() => {
+    if (!selected) {
+      return RANDOM_INTERVIEWER;
+    }
+    return selected;
+  }, [selected]);
 
   const createSelectHandler = (interviewer: InterviewerDto | null) => () => {
     onSelect(interviewer);
@@ -35,25 +41,25 @@ export function DashboardInterviewSetupInterviewerSelector({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <Card className="border-2 border-[#E12D39]/20 rounded-xl overflow-hidden">
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16 border-2 border-[#E12D39]/20">
-              <AvatarImage
-                src={normalizedInterviewer.avatar_url}
-                alt={normalizedInterviewer.name}
-              />
+              <AvatarImage src={displayInterviewer.avatar_url} alt={displayInterviewer.name} />
               <AvatarFallback className="bg-[#E12D39] text-white text-lg">
-                {normalizedInterviewer.name
+                {displayInterviewer.name
                   .split(" ")
                   .map((n) => n[0])
                   .join("")}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h4 className="font-bold text-[#0C3B5F] text-lg">{normalizedInterviewer.name}</h4>
-              <p className="text-gray-600 text-sm mb-2">{normalizedInterviewer.description}</p>
+              <h4 className="font-bold text-[#0C3B5F] text-lg">{displayInterviewer.name}</h4>
+              <TextWithPopover
+                contentClassName="text-gray-600 text-sm mb-2"
+                content={displayInterviewer.description}
+              />
             </div>
           </div>
         </CardContent>
@@ -122,7 +128,7 @@ export function DashboardInterviewSetupInterviewerSelector({
             >
               <div
                 className={`w-full p-3 rounded-lg transition-colors ${
-                  normalizedInterviewer.id === interviewer.id
+                  displayInterviewer.id === interviewer.id
                     ? "bg-[#E12D39]/10 border border-[#E12D39]/20"
                     : "hover:bg-gray-50"
                 }`}
@@ -143,7 +149,7 @@ export function DashboardInterviewSetupInterviewerSelector({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <h5 className="font-medium text-[#0C3B5F] truncate">{interviewer.name}</h5>
-                      {normalizedInterviewer.id === interviewer.id && (
+                      {displayInterviewer.id === interviewer.id && (
                         <CheckIcon className="h-4 w-4 text-[#E12D39] flex-shrink-0" />
                       )}
                     </div>

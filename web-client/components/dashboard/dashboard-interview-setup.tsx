@@ -5,17 +5,46 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeftIcon, ArrowRightIcon, Loader2Icon, MessageSquareIcon } from "lucide-react";
 import Link from "next/link";
-import { useSetupInterviewHandler } from "@/hooks/use-setup-interview-handler";
 import { DashboardInterviewSetupInterviewerSelector } from "@/components/dashboard/dashboard-interview-setup-interviewer-selector";
 import { InterviewerDto } from "@/dto/interviewer-dto";
+import { useInterviewSetupStore } from "@/store/interview-setup-store";
+import { useCallback, useState } from "react";
+import { CreateInterviewRequestDto } from "@/dto/interview-dto";
+import { interviewServiceSingleton } from "@/services/interview-service";
+import { useRouter } from "next/navigation";
 
 interface DashboardInterviewSetupProps {
   interviewers: InterviewerDto[];
 }
 
 export function DashboardInterviewSetup({ interviewers }: DashboardInterviewSetupProps) {
-  const { error, isPending, selectedInterviewer, selectInterviewerHandler, setupInterviewHandler } =
-    useSetupInterviewHandler();
+  const router = useRouter();
+
+  const { interviewer, setInterviewer } = useInterviewSetupStore();
+
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
+
+  const setupInterviewHandler = useCallback(async () => {
+    if (isPending) return;
+
+    const setupInterviewInput: CreateInterviewRequestDto = {};
+    if (interviewer) {
+      setupInterviewInput.interviewer_id = interviewer.id;
+    }
+
+    setIsPending(true);
+    try {
+      const response = await interviewServiceSingleton.createInterview(setupInterviewInput);
+      if (response.data) {
+        router.push(`/interview/${response.data.id}`);
+      }
+    } catch (err: any) {
+      console.error("Error setting up interview:", err);
+      setError(err?.response?.data?.message || "Failed to start interview. Please try again.");
+      setIsPending(false);
+    }
+  }, [interviewer, isPending, router]);
 
   return (
     <Card className="flex flex-col flex-1 w-full bg-white rounded-2xl shadow-xl overflow-hidden border-0 p-0">
@@ -123,8 +152,8 @@ export function DashboardInterviewSetup({ interviewers }: DashboardInterviewSetu
             <div className="mb-2">
               <DashboardInterviewSetupInterviewerSelector
                 options={interviewers}
-                selected={selectedInterviewer}
-                onSelect={selectInterviewerHandler}
+                selected={interviewer}
+                onSelect={setInterviewer}
               />
             </div>
 

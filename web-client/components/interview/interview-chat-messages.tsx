@@ -4,11 +4,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useInterviewStore } from "@/store/interview-store";
 import { InterviewMessageDto, InterviewMessageRole } from "@/dto/interview-message-dto";
 
-export function InterviewChatMessages() {
-  const messages = useInterviewStore((state) => state.messages);
-  const isPending = useInterviewStore((state) => state.isPending);
-  const isCompletionPending = useInterviewStore((state) => state.isCompletionPending);
+interface InterviewChatMessagesProps {
+  messages: InterviewMessageDto[];
+  isPending?: boolean;
+  isCompletionPending?: boolean;
+}
 
+export function InterviewChatMessages({
+  messages = [],
+  isPending = false,
+  isCompletionPending = false,
+}: InterviewChatMessagesProps) {
   const previousMessagesLength = useRef(messages.length);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { interviewServiceSingleton } from "@/services/interview-service";
 import { InterviewChat } from "@/components/interview/interview-chat";
 import { InterviewChatStoreWrapper } from "@/components/interview/interview-chat-store-wrapper";
+import { InterviewChatAbandoned } from "@/components/interview/interview-chat-abandoned";
 
 interface InterviewPageProps {
   params: Promise<{ id: string }>;
@@ -25,7 +26,7 @@ export default async function InterviewPage({ params }: InterviewPageProps) {
       return redirect(`/portal/interview/${id}`);
     }
 
-    return <div>Invalid status</div>;
+    return <InterviewChatAbandoned interview={interview} />;
   }
 
   return (

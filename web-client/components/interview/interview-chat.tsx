@@ -121,7 +121,11 @@ export function InterviewChat() {
       />
 
       <div className="flex-1 flex flex-col">
-        <InterviewChatMessages />
+        <InterviewChatMessages
+          messages={messages}
+          isPending={isPending}
+          isCompletionPending={isCompletionPending}
+        />
 
         {!isCompletionPending && !interviewResult && (
           <InterviewChatInput onSubmit={sendUserMessageHandler} />

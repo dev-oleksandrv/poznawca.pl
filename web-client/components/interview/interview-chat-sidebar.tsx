@@ -18,20 +18,20 @@ import { TextWithPopover } from "@/components/ui/text-with-popover";
 interface InterviewChatSidebarProps {
   interviewer: InterviewerDto;
 
-  isPending: boolean;
-  isCompletionAvailable: boolean;
-  isCompletionPending: boolean;
-  isCompleted: boolean;
+  isPending?: boolean;
+  isCompletionAvailable?: boolean;
+  isCompletionPending?: boolean;
+  isCompleted?: boolean;
 
-  onCompleteInterview: () => void;
+  onCompleteInterview?: () => void;
 }
 
 export function InterviewChatSidebar({
   interviewer,
-  isCompletionPending,
-  isCompletionAvailable,
-  isCompleted,
-  isPending,
+  isCompletionPending = false,
+  isCompletionAvailable = false,
+  isCompleted = false,
+  isPending = false,
   onCompleteInterview,
 }: InterviewChatSidebarProps) {
   return (

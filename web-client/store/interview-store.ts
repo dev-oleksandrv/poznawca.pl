@@ -9,14 +9,14 @@ export interface InterviewStore {
   result: InterviewResultDto | null;
   userInput: string;
   isPending: boolean;
-  isCompleted: boolean;
+  isCompletionPending: boolean;
 
   addMessage: (message: any) => void;
   setInterview: (interview: any | null) => void;
   setResult: (result: any | null) => void;
   setUserInput: (userInput: string) => void;
   setIsPending: (isPending: boolean) => void;
-  setIsCompleted: (isCompleted: boolean) => void;
+  setIsCompletionPending: (isCompletionPending: boolean) => void;
 }
 
 export const useInterviewStore = create<InterviewStore>((set) => ({
@@ -25,12 +25,12 @@ export const useInterviewStore = create<InterviewStore>((set) => ({
   result: null,
   userInput: "",
   isPending: false,
-  isCompleted: false,
+  isCompletionPending: false,
 
   addMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
   setInterview: (interview) => set({ interview }),
   setResult: (result) => set({ result }),
   setUserInput: (userInput) => set({ userInput }),
   setIsPending: (isPending) => set({ isPending }),
-  setIsCompleted: (isCompleted) => set({ isCompleted }),
+  setIsCompletionPending: (isCompletionPending) => set({ isCompletionPending }),
 }));

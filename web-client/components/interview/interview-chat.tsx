@@ -15,20 +15,26 @@ import { InterviewChatInput } from "@/components/interview/interview-chat-input"
 import { InterviewMessageRole } from "@/dto/interview-message-dto";
 import { INTERVIEW_MIN_MESSAGES_BEFORE_COMPLETION } from "@/data/interviewer-constants";
 import { InterviewChatResult } from "@/components/interview/interview-chat-result";
+import {
+  InterviewChatSoundController,
+  InterviewChatSoundControllerRef,
+} from "@/components/interview/interview-chat-sound-controller";
 
 export function InterviewChat() {
   const interview = useInterviewStore((state) => state.interview);
+  const isPending = useInterviewStore((state) => state.isPending);
   const setIsPending = useInterviewStore((state) => state.setIsPending);
   const setResult = useInterviewStore((state) => state.setResult);
   const messages = useInterviewStore((state) => state.messages);
   const addMessage = useInterviewStore((state) => state.addMessage);
   const userInput = useInterviewStore((state) => state.userInput);
   const setUserInput = useInterviewStore((state) => state.setUserInput);
-  const isCompleted = useInterviewStore((state) => state.isCompleted);
+  const isCompletionPending = useInterviewStore((state) => state.isCompletionPending);
   const interviewResult = useInterviewStore((state) => state.result);
-  const setIsCompleted = useInterviewStore((state) => state.setIsCompleted);
+  const setIsCompletionPending = useInterviewStore((state) => state.setIsCompletionPending);
 
   const wsManagerRef = useRef<InterviewWsManager>(null);
+  const soundControllerRef = useRef<InterviewChatSoundControllerRef>(null);
 
   const sendUserMessageHandler = () => {
     if (!interview || !userInput.trim() || !wsManagerRef.current) {
@@ -68,7 +74,7 @@ export function InterviewChat() {
 
     interviewWsManager
       .subscribe(InterviewEventType.InterviewerMessagePending, () => setIsPending(true))
-      .subscribe(InterviewEventType.ResultsPending, () => setIsPending(true))
+      .subscribe(InterviewEventType.ResultsPending, () => setIsCompletionPending(true))
       .subscribe(
         InterviewEventType.InterviewerMessageSent,
         (event: InterviewerMessageSentEvent) => {
@@ -77,21 +83,26 @@ export function InterviewChat() {
           if (!event.data.is_last_message) {
             setIsPending(false);
           }
+          if (soundControllerRef.current) {
+            soundControllerRef.current.playNewMessageSound();
+          }
         },
       )
       .subscribe(InterviewEventType.ResultsSent, (event: ResultsSentEvent) => {
         setResult(event.data);
-        setIsPending(false);
-        setIsCompleted(true);
+        setIsCompletionPending(false);
+        if (soundControllerRef.current) {
+          soundControllerRef.current.playInterviewCompletedSound();
+        }
       });
 
     wsManagerRef.current = interviewWsManager;
   }, [interview]);
 
-  const isCompletionDisabled = useMemo(() => {
+  const isCompletionAvailable = useMemo(() => {
     const userMessages = messages.filter((msg) => msg.role === InterviewMessageRole.User);
 
-    return userMessages.length <= INTERVIEW_MIN_MESSAGES_BEFORE_COMPLETION;
+    return userMessages.length > INTERVIEW_MIN_MESSAGES_BEFORE_COMPLETION;
   }, [messages]);
 
   if (!interview) {
@@ -102,14 +113,19 @@ export function InterviewChat() {
     <div className="flex h-screen bg-[#f8f9fa] relative">
       <InterviewChatSidebar
         interviewer={interview.interviewer}
-        isCompletionDisabled={isCompletionDisabled}
+        isPending={isPending}
+        isCompletionPending={isCompletionPending}
+        isCompletionAvailable={isCompletionAvailable}
+        isCompleted={!!interviewResult}
         onCompleteInterview={sendUserCompleteInterviewHandler}
       />
 
       <div className="flex-1 flex flex-col">
         <InterviewChatMessages />
 
-        {!isCompleted && <InterviewChatInput onSubmit={sendUserMessageHandler} />}
+        {!isCompletionPending && !interviewResult && (
+          <InterviewChatInput onSubmit={sendUserMessageHandler} />
+        )}
 
         {!!interviewResult && (
           <div className="absolute top-0 left-0 w-full h-full bg-opacity-60 bg-black flex items-center justify-center z-10">
@@ -117,6 +133,8 @@ export function InterviewChat() {
           </div>
         )}
       </div>
+
+      <InterviewChatSoundController ref={soundControllerRef} />
     </div>
   );
 }

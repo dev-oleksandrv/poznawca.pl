@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { InfoIcon, XIcon } from "lucide-react";
+import { InfoIcon, Loader2Icon, XIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,14 +17,22 @@ import { TextWithPopover } from "@/components/ui/text-with-popover";
 
 interface InterviewChatSidebarProps {
   interviewer: InterviewerDto;
-  isCompletionDisabled: boolean;
+
+  isPending: boolean;
+  isCompletionAvailable: boolean;
+  isCompletionPending: boolean;
+  isCompleted: boolean;
+
   onCompleteInterview: () => void;
 }
 
 export function InterviewChatSidebar({
   interviewer,
+  isCompletionPending,
+  isCompletionAvailable,
+  isCompleted,
+  isPending,
   onCompleteInterview,
-  isCompletionDisabled,
 }: InterviewChatSidebarProps) {
   return (
     <div className="w-80 bg-white border-r border-gray-100 flex flex-col">
@@ -65,44 +73,55 @@ export function InterviewChatSidebar({
         </div>
       </div>
 
-      <div className="p-6 border-t border-gray-100">
-        {isCompletionDisabled && (
-          <p className="text-xs text-gray-500 mb-2">
-            You must send at least 5 messages before you can end the interview.
-          </p>
-        )}
+      {!isCompleted && (
+        <div className="p-6 border-t border-gray-100">
+          {!isCompletionAvailable && (
+            <p className="text-xs text-gray-500 mb-2">
+              You must send at least 5 messages before you can end the interview.
+            </p>
+          )}
 
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              disabled={isCompletionDisabled}
-              variant="outline"
-              className="w-full border-[#E12D39] text-[#E12D39] hover:bg-[#E12D39] hover:text-white"
-            >
-              <XIcon className="mr-2 h-4 w-4" />
-              End Interview
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent className="rounded-xl">
-            <AlertDialogHeader>
-              <AlertDialogTitle>End Interview?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to end this interview? Your progress will be saved, but you
-                will use 5 energy points.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={onCompleteInterview}
-                className="bg-[#E12D39] hover:bg-[#c0252f] rounded-lg"
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                disabled={isCompletionPending || !isCompletionAvailable || isPending}
+                variant="outline"
+                className="w-full border-[#E12D39] text-[#E12D39] hover:bg-[#E12D39] hover:text-white"
               >
-                End Interview
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
+                {isCompletionPending ? (
+                  <>
+                    <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                    Ending Interview...
+                  </>
+                ) : (
+                  <>
+                    <XIcon className="mr-2 h-4 w-4" />
+                    End Interview
+                  </>
+                )}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="rounded-xl">
+              <AlertDialogHeader>
+                <AlertDialogTitle>End Interview?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to end this interview? Your progress will be saved, but you
+                  will use 5 energy points.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={onCompleteInterview}
+                  className="bg-[#E12D39] hover:bg-[#c0252f] rounded-lg"
+                >
+                  End Interview
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      )}
     </div>
   );
 }

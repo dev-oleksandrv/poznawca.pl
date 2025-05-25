@@ -53,7 +53,7 @@ export function InterviewChatResult() {
   }
 
   return (
-    <Card className="w-full max-w-3xl mx-auto rounded-2xl border-0 shadow-lg overflow-hidden">
+    <Card className="flex flex-col max-h-[90vh] w-full max-w-3xl mx-auto rounded-2xl border-0 shadow-lg overflow-hidden">
       <CardHeader className="py-6 bg-gradient-to-r from-[#0C3B5F] to-[#1a5a8a] text-white">
         <div className="flex justify-between items-center">
           <div>
@@ -71,7 +71,7 @@ export function InterviewChatResult() {
         </p>
       </CardHeader>
 
-      <CardContent className="p-0">
+      <CardContent className="p-0 flex-1 overflow-auto">
         <div className="p-6 bg-white">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-2">
@@ -250,22 +250,22 @@ export function InterviewChatResult() {
             </TabsContent>
           </Tabs>
         </div>
-
-        <div className="p-6 bg-gray-50 border-t border-gray-100 flex flex-wrap gap-3 justify-between">
-          <Button variant="outline" className="rounded-xl" asChild>
-            <Link href="/portal/interview">
-              <RotateCcw className="mr-2 h-4 w-4" />
-              Try Again
-            </Link>
-          </Button>
-          <Link href="/portal">
-            <Button className="rounded-xl bg-[#0C3B5F] hover:bg-[#0a3050]">
-              <Home className="mr-2 h-4 w-4" />
-              Back to Main
-            </Button>
-          </Link>
-        </div>
       </CardContent>
+
+      <div className="p-6 bg-gray-50 border-t border-gray-100 flex flex-wrap gap-3 justify-between">
+        <Button variant="outline" className="rounded-xl" asChild>
+          <Link href="/portal/interview">
+            <RotateCcw className="mr-2 h-4 w-4" />
+            Try Again
+          </Link>
+        </Button>
+        <Link href="/portal">
+          <Button className="rounded-xl bg-[#0C3B5F] hover:bg-[#0a3050]">
+            <Home className="mr-2 h-4 w-4" />
+            Back to Main
+          </Button>
+        </Link>
+      </div>
     </Card>
   );
 }

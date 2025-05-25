@@ -8,7 +8,7 @@ import (
 )
 
 type InterviewMessageRepository interface {
-	Create(ctx context.Context, interviewMessage *model.InterviewMessageModel) (*model.InterviewMessageModel, error)
+	Create(ctx context.Context, interviewMessage *model.InterviewMessage) (*model.InterviewMessage, error)
 	GetCountByInterviewID(ctx context.Context, interviewID uuid.UUID, role *model.InterviewMessageRole) (int64, error)
 }
 
@@ -22,7 +22,7 @@ func NewInterviewMessageRepository(db *database.PGQLDatabase) InterviewMessageRe
 	}
 }
 
-func (r *interviewMessageRepositoryImpl) Create(ctx context.Context, interviewMessage *model.InterviewMessageModel) (*model.InterviewMessageModel, error) {
+func (r *interviewMessageRepositoryImpl) Create(ctx context.Context, interviewMessage *model.InterviewMessage) (*model.InterviewMessage, error) {
 	if err := r.db.WithContext(ctx).Create(interviewMessage).Error; err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func (r *interviewMessageRepositoryImpl) Create(ctx context.Context, interviewMe
 
 func (r *interviewMessageRepositoryImpl) GetCountByInterviewID(ctx context.Context, interviewID uuid.UUID, role *model.InterviewMessageRole) (int64, error) {
 	var count int64
-	dbQuery := r.db.WithContext(ctx).Model(&model.InterviewMessageModel{}).Where("interview_id = ?", interviewID)
+	dbQuery := r.db.WithContext(ctx).Model(&model.InterviewMessage{}).Where("interview_id = ?", interviewID)
 
 	if role != nil {
 		dbQuery = dbQuery.Where("role = ?", *role)

@@ -9,9 +9,9 @@ import (
 )
 
 type AppInterviewerService interface {
-	FindAll(ctx context.Context) ([]*model.InterviewerModel, error)
-	FindRandom(ctx context.Context) (*model.InterviewerModel, error)
-	FindByIDOrRandom(ctx context.Context, id *uuid.UUID) (*model.InterviewerModel, error)
+	FindAll(ctx context.Context) ([]*model.Interviewer, error)
+	FindRandom(ctx context.Context) (*model.Interviewer, error)
+	FindByIDOrRandom(ctx context.Context, id *uuid.UUID) (*model.Interviewer, error)
 }
 
 type appInterviewerServiceImpl struct {
@@ -24,20 +24,20 @@ func NewAppInterviewerService(interviewerRepository repository.InterviewerReposi
 	}
 }
 
-func (s *appInterviewerServiceImpl) FindAll(ctx context.Context) ([]*model.InterviewerModel, error) {
+func (s *appInterviewerServiceImpl) FindAll(ctx context.Context) ([]*model.Interviewer, error) {
 	return s.interviewerRepository.FindAll(ctx)
 }
 
-func (s *appInterviewerServiceImpl) FindRandom(ctx context.Context) (*model.InterviewerModel, error) {
+func (s *appInterviewerServiceImpl) FindRandom(ctx context.Context) (*model.Interviewer, error) {
 	return s.interviewerRepository.FindRandom(ctx)
 }
 
-func (s *appInterviewerServiceImpl) FindByIDOrRandom(ctx context.Context, id *uuid.UUID) (*model.InterviewerModel, error) {
+func (s *appInterviewerServiceImpl) FindByIDOrRandom(ctx context.Context, id *uuid.UUID) (*model.Interviewer, error) {
 	if id != nil && *id == uuid.Nil {
 		return nil, errors.ErrInvalidID
 	}
 
-	var interviewer *model.InterviewerModel
+	var interviewer *model.Interviewer
 	if id == nil {
 		randomInterviewer, err := s.interviewerRepository.FindRandom(ctx)
 		if err != nil {

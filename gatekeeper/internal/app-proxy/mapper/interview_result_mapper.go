@@ -5,7 +5,7 @@ import (
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/shared/model"
 )
 
-func MapInterviewResultToAppDto(interviewResult *model.InterviewResultModel) *dto.AppInterviewResultDto {
+func MapInterviewResultToAppDto(interviewResult *model.InterviewResult) *dto.AppInterviewResultDto {
 	return &dto.AppInterviewResultDto{
 		ID:               interviewResult.ID.String(),
 		GrammarScore:     interviewResult.GrammarScore,

@@ -9,10 +9,10 @@ import (
 )
 
 type BackofficeInterviewerService interface {
-	FindAll(ctx context.Context) ([]*model.InterviewerModel, error)
-	FindByID(ctx context.Context, id uuid.UUID) (*model.InterviewerModel, error)
-	Create(ctx context.Context, interviewer *model.InterviewerModel) (*model.InterviewerModel, error)
-	Update(ctx context.Context, interviewer *model.InterviewerModel) (*model.InterviewerModel, error)
+	FindAll(ctx context.Context) ([]*model.Interviewer, error)
+	FindByID(ctx context.Context, id uuid.UUID) (*model.Interviewer, error)
+	Create(ctx context.Context, interviewer *model.Interviewer) (*model.Interviewer, error)
+	Update(ctx context.Context, interviewer *model.Interviewer) (*model.Interviewer, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
@@ -26,22 +26,22 @@ func NewBackofficeInterviewerService(repository repository.InterviewerRepository
 	}
 }
 
-func (s *backofficeInterviewerServiceImpl) FindAll(ctx context.Context) ([]*model.InterviewerModel, error) {
+func (s *backofficeInterviewerServiceImpl) FindAll(ctx context.Context) ([]*model.Interviewer, error) {
 	return s.interviewerRepository.FindAll(ctx)
 }
 
-func (s *backofficeInterviewerServiceImpl) FindByID(ctx context.Context, id uuid.UUID) (*model.InterviewerModel, error) {
+func (s *backofficeInterviewerServiceImpl) FindByID(ctx context.Context, id uuid.UUID) (*model.Interviewer, error) {
 	if id == uuid.Nil {
 		return nil, errors.ErrInvalidID
 	}
 	return s.interviewerRepository.FindByID(ctx, id)
 }
 
-func (s *backofficeInterviewerServiceImpl) Create(ctx context.Context, interviewer *model.InterviewerModel) (*model.InterviewerModel, error) {
+func (s *backofficeInterviewerServiceImpl) Create(ctx context.Context, interviewer *model.Interviewer) (*model.Interviewer, error) {
 	return s.interviewerRepository.Create(ctx, interviewer)
 }
 
-func (s *backofficeInterviewerServiceImpl) Update(ctx context.Context, interviewer *model.InterviewerModel) (*model.InterviewerModel, error) {
+func (s *backofficeInterviewerServiceImpl) Update(ctx context.Context, interviewer *model.Interviewer) (*model.Interviewer, error) {
 	return s.interviewerRepository.Update(ctx, interviewer)
 }
 

@@ -11,13 +11,13 @@ import (
 )
 
 type AppWSInterviewService interface {
-	ActivateInterview(ctx context.Context, interviewID uuid.UUID) (*model.InterviewModel, error)
-	AbandonInterview(ctx context.Context, interview *model.InterviewModel) error
-	CompleteInterview(ctx context.Context, interview *model.InterviewModel) error
-	CreateMessage(ctx context.Context, interviewMessage *model.InterviewMessageModel) (*model.InterviewMessageModel, error)
-	ProcessMessageWithOpenAI(ctx context.Context, threadID string, interviewMessage *model.InterviewMessageModel) (*model.InterviewMessageModel, error)
-	GetResultsWithOpenAI(ctx context.Context, interviewID uuid.UUID, threadID string) (*model.InterviewResultModel, error)
-	CheckInterviewCompleteAvailability(ctx context.Context, interview *model.InterviewModel) (bool, error)
+	ActivateInterview(ctx context.Context, interviewID uuid.UUID) (*model.Interview, error)
+	AbandonInterview(ctx context.Context, interview *model.Interview) error
+	CompleteInterview(ctx context.Context, interview *model.Interview) error
+	CreateMessage(ctx context.Context, interviewMessage *model.InterviewMessage) (*model.InterviewMessage, error)
+	ProcessMessageWithOpenAI(ctx context.Context, threadID string, interviewMessage *model.InterviewMessage) (*model.InterviewMessage, error)
+	GetResultsWithOpenAI(ctx context.Context, interviewID uuid.UUID, threadID string) (*model.InterviewResult, error)
+	CheckInterviewCompleteAvailability(ctx context.Context, interview *model.Interview) (bool, error)
 }
 
 type appWSInterviewServiceImpl struct {
@@ -43,7 +43,7 @@ func NewAppWSInterviewService(cfg *NewAppWSInterviewServiceConfig) AppWSIntervie
 	}
 }
 
-func (s *appWSInterviewServiceImpl) ActivateInterview(ctx context.Context, interviewID uuid.UUID) (*model.InterviewModel, error) {
+func (s *appWSInterviewServiceImpl) ActivateInterview(ctx context.Context, interviewID uuid.UUID) (*model.Interview, error) {
 	if interviewID == uuid.Nil {
 		return nil, errors.ErrInvalidID
 	}
@@ -69,7 +69,7 @@ func (s *appWSInterviewServiceImpl) ActivateInterview(ctx context.Context, inter
 	return interview, nil
 }
 
-func (s *appWSInterviewServiceImpl) AbandonInterview(ctx context.Context, interview *model.InterviewModel) error {
+func (s *appWSInterviewServiceImpl) AbandonInterview(ctx context.Context, interview *model.Interview) error {
 	if interview == nil {
 		return errors.ErrInterviewNotFound
 	}
@@ -86,7 +86,7 @@ func (s *appWSInterviewServiceImpl) AbandonInterview(ctx context.Context, interv
 	return s.interviewRepository.UpdateColumn(ctx, interview.ID, "status", model.InterviewStatusAbandoned)
 }
 
-func (s *appWSInterviewServiceImpl) CompleteInterview(ctx context.Context, interview *model.InterviewModel) error {
+func (s *appWSInterviewServiceImpl) CompleteInterview(ctx context.Context, interview *model.Interview) error {
 	if interview == nil {
 		return errors.ErrInterviewNotFound
 	}
@@ -103,7 +103,7 @@ func (s *appWSInterviewServiceImpl) CompleteInterview(ctx context.Context, inter
 	return s.interviewRepository.UpdateColumn(ctx, interview.ID, "status", model.InterviewStatusCompleted)
 }
 
-func (s *appWSInterviewServiceImpl) CreateMessage(ctx context.Context, message *model.InterviewMessageModel) (*model.InterviewMessageModel, error) {
+func (s *appWSInterviewServiceImpl) CreateMessage(ctx context.Context, message *model.InterviewMessage) (*model.InterviewMessage, error) {
 	if message.InterviewID == uuid.Nil {
 		return nil, errors.ErrInvalidID
 	}
@@ -115,7 +115,7 @@ func (s *appWSInterviewServiceImpl) CreateMessage(ctx context.Context, message *
 	return s.interviewMessageRepository.Create(ctx, message)
 }
 
-func (s *appWSInterviewServiceImpl) ProcessMessageWithOpenAI(ctx context.Context, threadID string, userMessage *model.InterviewMessageModel) (*model.InterviewMessageModel, error) {
+func (s *appWSInterviewServiceImpl) ProcessMessageWithOpenAI(ctx context.Context, threadID string, userMessage *model.InterviewMessage) (*model.InterviewMessage, error) {
 	if userMessage == nil {
 		return nil, errors.ErrInvalidMessage
 	}
@@ -137,7 +137,7 @@ func (s *appWSInterviewServiceImpl) ProcessMessageWithOpenAI(ctx context.Context
 		return nil, err
 	}
 
-	assistantMessage, err := s.CreateMessage(ctx, &model.InterviewMessageModel{
+	assistantMessage, err := s.CreateMessage(ctx, &model.InterviewMessage{
 		InterviewID:            userMessage.InterviewID,
 		Role:                   model.InterviewMessageRoleInterviewer,
 		ContentText:            aiResponse.ContentText,
@@ -152,7 +152,7 @@ func (s *appWSInterviewServiceImpl) ProcessMessageWithOpenAI(ctx context.Context
 	return assistantMessage, nil
 }
 
-func (s *appWSInterviewServiceImpl) GetResultsWithOpenAI(ctx context.Context, interviewID uuid.UUID, threadID string) (*model.InterviewResultModel, error) {
+func (s *appWSInterviewServiceImpl) GetResultsWithOpenAI(ctx context.Context, interviewID uuid.UUID, threadID string) (*model.InterviewResult, error) {
 	if threadID == "" {
 		return nil, errors.ErrInvalidID
 	}
@@ -164,7 +164,7 @@ func (s *appWSInterviewServiceImpl) GetResultsWithOpenAI(ctx context.Context, in
 		return nil, err
 	}
 
-	interviewResult, err := s.interviewResultRepository.Create(ctx, &model.InterviewResultModel{
+	interviewResult, err := s.interviewResultRepository.Create(ctx, &model.InterviewResult{
 		InterviewID:      interviewID,
 		GrammarScore:     assistantResult.GrammarScore,
 		GrammarFeedback:  assistantResult.GrammarFeedback,
@@ -180,7 +180,7 @@ func (s *appWSInterviewServiceImpl) GetResultsWithOpenAI(ctx context.Context, in
 	return interviewResult, nil
 }
 
-func (s *appWSInterviewServiceImpl) CheckInterviewCompleteAvailability(ctx context.Context, interview *model.InterviewModel) (bool, error) {
+func (s *appWSInterviewServiceImpl) CheckInterviewCompleteAvailability(ctx context.Context, interview *model.Interview) (bool, error) {
 	if interview.ID == uuid.Nil {
 		return false, errors.ErrInvalidID
 	}

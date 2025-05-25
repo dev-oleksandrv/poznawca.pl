@@ -5,7 +5,7 @@ import (
 	"github.com/dev-oleksandrv/poznawca/gatekeeper/internal/shared/model"
 )
 
-func MapInterviewerModelToBackofficeDto(interviewer *model.InterviewerModel) *dto.BackofficeInterviewerDto {
+func MapInterviewerModelToBackofficeDto(interviewer *model.Interviewer) *dto.BackofficeInterviewerDto {
 	return &dto.BackofficeInterviewerDto{
 		ID:                        interviewer.ID.String(),
 		Name:                      interviewer.Name,
@@ -18,7 +18,7 @@ func MapInterviewerModelToBackofficeDto(interviewer *model.InterviewerModel) *dt
 	}
 }
 
-func MapInterviewerModelToBackofficeDtoList(interviewers []*model.InterviewerModel) []*dto.BackofficeInterviewerDto {
+func MapInterviewerModelToBackofficeDtoList(interviewers []*model.Interviewer) []*dto.BackofficeInterviewerDto {
 	interviewerDtos := make([]*dto.BackofficeInterviewerDto, len(interviewers))
 	for i, interviewer := range interviewers {
 		interviewerDtos[i] = MapInterviewerModelToBackofficeDto(interviewer)

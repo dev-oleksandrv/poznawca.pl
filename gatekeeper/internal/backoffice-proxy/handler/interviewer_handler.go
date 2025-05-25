@@ -71,7 +71,7 @@ func (h *backofficeInterviewerHandlerImpl) Create(c *gin.Context) {
 		return
 	}
 
-	interviewer := &model.InterviewerModel{
+	interviewer := &model.Interviewer{
 		Name:                      inputDto.Name,
 		AvatarURL:                 inputDto.AvatarURL,
 		EntryMessage:              inputDto.EntryMessage,

@@ -23,7 +23,7 @@ type AppInterviewClientSession interface {
 type appInterviewClientSessionImpl struct {
 	context   context.Context
 	socket    *websocket.Conn
-	interview *model.InterviewModel
+	interview *model.Interview
 	sendQueue chan interface{}
 	logger    *slog.Logger
 	service   service.AppWSInterviewService
@@ -32,7 +32,7 @@ type appInterviewClientSessionImpl struct {
 type NewAppInterviewClientSessionConfig struct {
 	Context   context.Context
 	Socket    *websocket.Conn
-	Interview *model.InterviewModel
+	Interview *model.Interview
 	Service   service.AppWSInterviewService
 }
 
@@ -99,7 +99,7 @@ func (s *appInterviewClientSessionImpl) Init() {
 		return
 	}
 
-	interviewerMessage := &model.InterviewMessageModel{
+	interviewerMessage := &model.InterviewMessage{
 		InterviewID: s.interview.ID,
 		ContentText: s.interview.Interviewer.EntryMessage,
 		Role:        model.InterviewMessageRoleInterviewer,
@@ -117,7 +117,7 @@ func (s *appInterviewClientSessionImpl) Init() {
 }
 
 func (s *appInterviewClientSessionImpl) sendErrorMessage(errorKey errors.InterviewMessageErrorKey) {
-	errorMessage := &model.InterviewMessageModel{
+	errorMessage := &model.InterviewMessage{
 		InterviewID: s.interview.ID,
 		ContentText: string(errorKey),
 		Role:        model.InterviewMessageRoleSystem,
@@ -156,7 +156,7 @@ func (s *appInterviewClientSessionImpl) handleUserMessageSentEvent(rawMsg []byte
 		return
 	}
 
-	userMessage := &model.InterviewMessageModel{
+	userMessage := &model.InterviewMessage{
 		InterviewID: s.interview.ID,
 		ContentText: userMessageEvent.Content,
 		Role:        model.InterviewMessageRoleUser,

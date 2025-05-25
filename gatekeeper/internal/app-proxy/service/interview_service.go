@@ -11,10 +11,10 @@ import (
 )
 
 type AppInterviewService interface {
-	FindByID(ctx context.Context, id uuid.UUID) (*model.InterviewModel, error)
-	Create(ctx context.Context, interview *model.InterviewModel) (*model.InterviewModel, error)
-	Update(ctx context.Context, interview *model.InterviewModel) (*model.InterviewModel, error)
-	UpdateStatus(ctx context.Context, interview *model.InterviewModel) error
+	FindByID(ctx context.Context, id uuid.UUID) (*model.Interview, error)
+	Create(ctx context.Context, interview *model.Interview) (*model.Interview, error)
+	Update(ctx context.Context, interview *model.Interview) (*model.Interview, error)
+	UpdateStatus(ctx context.Context, interview *model.Interview) error
 }
 
 type appInterviewServiceImpl struct {
@@ -29,7 +29,7 @@ func NewAppInterviewService(interviewRepository repository.InterviewRepository, 
 	}
 }
 
-func (s *appInterviewServiceImpl) FindByID(ctx context.Context, id uuid.UUID) (*model.InterviewModel, error) {
+func (s *appInterviewServiceImpl) FindByID(ctx context.Context, id uuid.UUID) (*model.Interview, error) {
 	if id == uuid.Nil {
 		return nil, errors.ErrInvalidID
 	}
@@ -42,7 +42,7 @@ func (s *appInterviewServiceImpl) FindByID(ctx context.Context, id uuid.UUID) (*
 	return interview, nil
 }
 
-func (s *appInterviewServiceImpl) Create(ctx context.Context, interview *model.InterviewModel) (*model.InterviewModel, error) {
+func (s *appInterviewServiceImpl) Create(ctx context.Context, interview *model.Interview) (*model.Interview, error) {
 	if interview.Status != model.InterviewStatusPending {
 		return nil, errors.ErrInvalidInitialStatus
 	}
@@ -68,7 +68,7 @@ func (s *appInterviewServiceImpl) Create(ctx context.Context, interview *model.I
 	return s.interviewRepository.Create(ctx, interview)
 }
 
-func (s *appInterviewServiceImpl) Update(ctx context.Context, interview *model.InterviewModel) (*model.InterviewModel, error) {
+func (s *appInterviewServiceImpl) Update(ctx context.Context, interview *model.Interview) (*model.Interview, error) {
 	if interview.ID == uuid.Nil {
 		return nil, errors.ErrInvalidID
 	}
@@ -80,7 +80,7 @@ func (s *appInterviewServiceImpl) Update(ctx context.Context, interview *model.I
 	return s.interviewRepository.Update(ctx, interview)
 }
 
-func (s *appInterviewServiceImpl) UpdateStatus(ctx context.Context, interview *model.InterviewModel) error {
+func (s *appInterviewServiceImpl) UpdateStatus(ctx context.Context, interview *model.Interview) error {
 	if interview.ID == uuid.Nil {
 		return errors.ErrInvalidID
 	}

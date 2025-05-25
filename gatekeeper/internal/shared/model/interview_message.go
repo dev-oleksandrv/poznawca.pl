@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type InterviewMessageModel struct {
+type InterviewMessage struct {
 	ID                     uuid.UUID            `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
 	ContentText            string               `gorm:"type:text;not null"`
 	ContentTranslationText string               `gorm:"type:text;not null;default:''"`
@@ -14,7 +14,7 @@ type InterviewMessageModel struct {
 	Type                   InterviewMessageType `gorm:"type:varchar(50);not null;default:'default'"`
 	IsLastMessage          bool                 `gorm:"type:boolean;not null;default:false"`
 	InterviewID            uuid.UUID            `gorm:"type:uuid;not null;index"`
-	Interview              *InterviewModel      `gorm:"foreignKey:InterviewID;constraint:OnDelete:CASCADE;"`
+	Interview              *Interview           `gorm:"foreignKey:InterviewID;constraint:OnDelete:CASCADE;"`
 	CreatedAt              time.Time            `gorm:"autoCreateTime"`
 	UpdatedAt              time.Time            `gorm:"autoUpdateTime"`
 }

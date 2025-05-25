@@ -7,7 +7,7 @@ import (
 )
 
 type InterviewResultRepository interface {
-	Create(ctx context.Context, interviewResult *model.InterviewResultModel) (*model.InterviewResultModel, error)
+	Create(ctx context.Context, interviewResult *model.InterviewResult) (*model.InterviewResult, error)
 }
 
 type interviewResultRepositoryImpl struct {
@@ -20,7 +20,7 @@ func NewInterviewResultRepository(db *database.PGQLDatabase) InterviewResultRepo
 	}
 }
 
-func (r *interviewResultRepositoryImpl) Create(ctx context.Context, interviewResult *model.InterviewResultModel) (*model.InterviewResultModel, error) {
+func (r *interviewResultRepositoryImpl) Create(ctx context.Context, interviewResult *model.InterviewResult) (*model.InterviewResult, error) {
 	if err := r.db.WithContext(ctx).Create(interviewResult).Error; err != nil {
 		return nil, err
 	}

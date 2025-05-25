@@ -1,7 +1,6 @@
 import { AlertTriangleIcon, Loader2Icon } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useInterviewStore } from "@/store/interview-store";
 import { InterviewMessageDto, InterviewMessageRole } from "@/dto/interview-message-dto";
 
 interface InterviewChatMessagesProps {

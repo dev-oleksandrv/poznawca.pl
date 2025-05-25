@@ -3,7 +3,7 @@
 import { InterviewChatSidebar } from "@/components/interview/interview-chat-sidebar";
 import { InterviewDto } from "@/dto/interview-dto";
 import { InterviewChatMessages } from "@/components/interview/interview-chat-messages";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Home, RotateCcw } from "lucide-react";

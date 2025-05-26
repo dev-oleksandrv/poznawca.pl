@@ -10,7 +10,7 @@ export function DashboardInterviewSetupError() {
         <h3 className="text-xl font-black">No available interviewers right now</h3>
       </CardTitle>
       <CardContent className="p-0 mt-2">
-        <p>Unfortunately, we don't have available interviewers right now.</p>
+        <p>Unfortunately, we don&apos;t have available interviewers right now.</p>
         <Button
           className="bg-[#E12D39] hover:bg-[#c0252f] text-white rounded-xl py-5 font-medium transition-all mt-1"
           asChild

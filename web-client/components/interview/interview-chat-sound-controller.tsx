@@ -1,13 +1,17 @@
 "use client";
 
-import { ComponentPropsWithRef, RefObject, useImperativeHandle, useRef } from "react";
+import { Ref, RefObject, useImperativeHandle, useRef } from "react";
 
 export interface InterviewChatSoundControllerRef {
   playNewMessageSound: () => void;
   playInterviewCompletedSound: () => void;
 }
 
-export function InterviewChatSoundController({ ref }: ComponentPropsWithRef<any>) {
+export function InterviewChatSoundController({
+  ref,
+}: {
+  ref: Ref<InterviewChatSoundControllerRef>;
+}) {
   const newMessageSound = useRef<HTMLAudioElement>(null);
   const interviewCompletedSound = useRef<HTMLAudioElement>(null);
 

@@ -39,9 +39,9 @@ export function DashboardInterviewSetup({ interviewers }: DashboardInterviewSetu
       if (response.data) {
         router.push(`/interview/${response.data.id}`);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error setting up interview:", err);
-      setError(err?.response?.data?.message || "Failed to start interview. Please try again.");
+      setError((err as Error)?.message || "Failed to start interview. Please try again.");
       setIsPending(false);
     }
   }, [interviewer, isPending, router]);

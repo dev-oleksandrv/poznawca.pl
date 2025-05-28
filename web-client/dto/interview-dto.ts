@@ -24,4 +24,5 @@ export interface InterviewDto {
   interviewer: InterviewerDto;
   messages: InterviewMessageDto[];
   result: InterviewResultDto | null;
+  updated_at: string;
 }

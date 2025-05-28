@@ -12,8 +12,12 @@ export class InterviewService {
 
   constructor(private readonly apiClient: KyInstance) {}
 
-  getByID(id: string) {
+  public getByID(id: string) {
     return this.apiClient.get(`${this.URL_PREFIX}/${id}`).json<APIResponseWrapper<InterviewDto>>();
+  }
+
+  public getList() {
+    return this.apiClient.get(`${this.URL_PREFIX}/list`).json<APIResponseWrapper<InterviewDto[]>>();
   }
 
   public createInterview(input: CreateInterviewRequestDto) {

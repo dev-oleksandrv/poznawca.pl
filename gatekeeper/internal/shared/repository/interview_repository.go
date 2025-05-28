@@ -51,7 +51,7 @@ func (r *interviewRepositoryImpl) FindAll(ctx context.Context, opts ...query.Int
 		tx = opt(tx)
 	}
 
-	if err := tx.Find(&interviews).Commit().Error; err != nil {
+	if err := tx.Order("updated_at desc").Find(&interviews).Commit().Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}

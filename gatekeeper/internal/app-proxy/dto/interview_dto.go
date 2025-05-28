@@ -1,6 +1,8 @@
 package dto
 
-import "github.com/go-playground/validator/v10"
+import (
+	"github.com/go-playground/validator/v10"
+)
 
 var validate = validator.New()
 
@@ -10,6 +12,7 @@ type AppInterviewDto struct {
 	Interviewer *AppInterviewerDto        `json:"interviewer"`
 	Result      *AppInterviewResultDto    `json:"result"`
 	Messages    []*AppInterviewMessageDto `json:"messages"`
+	UpdatedAt   string                    `json:"updated_at"`
 }
 
 type CreateAppInterviewRequestDto struct {

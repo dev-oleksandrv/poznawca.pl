@@ -7,9 +7,10 @@ import (
 
 func MapInterviewModelToAppDto(interview *model.Interview) *dto.AppInterviewDto {
 	output := &dto.AppInterviewDto{
-		ID:       interview.ID.String(),
-		Status:   string(interview.Status),
-		Messages: make([]*dto.AppInterviewMessageDto, 0),
+		ID:        interview.ID.String(),
+		Status:    string(interview.Status),
+		Messages:  make([]*dto.AppInterviewMessageDto, 0),
+		UpdatedAt: interview.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
 
 	if interview.Interviewer != nil {

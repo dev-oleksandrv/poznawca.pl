@@ -10,6 +10,7 @@ import (
 
 type InterviewRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID, opts ...query.InterviewQueryOption) (*model.Interview, error)
+	FindAll(ctx context.Context, opts ...query.InterviewQueryOption) ([]*model.Interview, error)
 	Create(ctx context.Context, interview *model.Interview) (*model.Interview, error)
 	Update(ctx context.Context, interview *model.Interview) (*model.Interview, error)
 	UpdateColumn(ctx context.Context, id uuid.UUID, columnName string, value interface{}) error
@@ -40,6 +41,22 @@ func (r *interviewRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID, op
 	}
 
 	return interview, nil
+}
+
+func (r *interviewRepositoryImpl) FindAll(ctx context.Context, opts ...query.InterviewQueryOption) ([]*model.Interview, error) {
+	var interviews []*model.Interview
+	tx := r.db.WithContext(ctx).Begin()
+
+	for _, opt := range opts {
+		tx = opt(tx)
+	}
+
+	if err := tx.Find(&interviews).Commit().Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	return interviews, nil
 }
 
 func (r *interviewRepositoryImpl) Create(ctx context.Context, interview *model.Interview) (*model.Interview, error) {

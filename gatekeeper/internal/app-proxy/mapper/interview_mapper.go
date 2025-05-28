@@ -29,3 +29,11 @@ func MapInterviewModelToAppDto(interview *model.Interview) *dto.AppInterviewDto 
 
 	return output
 }
+
+func MapInterviewModelToAppDtoList(interviews []*model.Interview) []*dto.AppInterviewDto {
+	output := make([]*dto.AppInterviewDto, len(interviews))
+	for i, interview := range interviews {
+		output[i] = MapInterviewModelToAppDto(interview)
+	}
+	return output
+}

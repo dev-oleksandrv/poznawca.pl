@@ -12,6 +12,7 @@ import (
 
 type AppInterviewService interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*model.Interview, error)
+	FindAll(ctx context.Context) ([]*model.Interview, error)
 	Create(ctx context.Context, interview *model.Interview) (*model.Interview, error)
 	Update(ctx context.Context, interview *model.Interview) (*model.Interview, error)
 	UpdateStatus(ctx context.Context, interview *model.Interview) error
@@ -40,6 +41,20 @@ func (s *appInterviewServiceImpl) FindByID(ctx context.Context, id uuid.UUID) (*
 	}
 
 	return interview, nil
+}
+
+func (s *appInterviewServiceImpl) FindAll(ctx context.Context) ([]*model.Interview, error) {
+	interviews, err := s.interviewRepository.FindAll(
+		ctx,
+		query.InterviewQueryWithInterviewer(),
+		query.InterviewQueryWithResult(),
+		query.InterviewQueryWithStatus(model.InterviewStatusCompleted, model.InterviewStatusAbandoned),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return interviews, nil
 }
 
 func (s *appInterviewServiceImpl) Create(ctx context.Context, interview *model.Interview) (*model.Interview, error) {

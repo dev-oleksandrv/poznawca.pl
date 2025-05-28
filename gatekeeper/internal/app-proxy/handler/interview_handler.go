@@ -12,6 +12,7 @@ import (
 
 type AppInterviewHandler interface {
 	GetByID(c *gin.Context)
+	GetAll(c *gin.Context)
 	Create(c *gin.Context)
 }
 
@@ -41,6 +42,16 @@ func (h *appInterviewHandlerImpl) GetByID(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"data": mapper.MapInterviewModelToAppDto(interview)})
+}
+
+func (h *appInterviewHandlerImpl) GetAll(c *gin.Context) {
+	interviews, err := h.interviewService.FindAll(c.Request.Context())
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"data": mapper.MapInterviewModelToAppDtoList(interviews)})
 }
 
 func (h *appInterviewHandlerImpl) Create(c *gin.Context) {

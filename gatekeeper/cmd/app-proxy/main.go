@@ -72,6 +72,7 @@ func main() {
 	}
 	interviewGroup := apiGroup.Group("/interview")
 	{
+		interviewGroup.GET("/list", interviewHandler.GetAll)
 		interviewGroup.GET("/:id", interviewHandler.GetByID)
 		interviewGroup.POST("", interviewHandler.Create)
 	}

@@ -5,11 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle, XCircle, AlertTriangle, Home, RotateCcw } from "lucide-react";
-import { useInterviewStore } from "@/store/interview-store";
+import { InterviewResultDto } from "@/dto/interview-result-dto";
+import { cn } from "@/lib/utils";
 
-export function InterviewChatResult() {
-  const result = useInterviewStore((state) => state.result);
+interface InterviewChatResultProps {
+  result?: InterviewResultDto;
+  rootClassName?: string;
+}
 
+export function InterviewChatResult({ result, rootClassName }: InterviewChatResultProps) {
   const getScoreColor = (score: number) => {
     if (score >= 80) return "text-green-600";
     if (score >= 60) return "text-amber-600";
@@ -53,7 +57,12 @@ export function InterviewChatResult() {
   }
 
   return (
-    <Card className="flex flex-col max-h-[90vh] w-full max-w-3xl mx-auto rounded-2xl border-0 shadow-lg overflow-hidden">
+    <Card
+      className={cn(
+        "flex flex-col max-h-[90vh] w-full max-w-3xl mx-auto rounded-2xl border-0 shadow-lg overflow-hidden",
+        rootClassName,
+      )}
+    >
       <CardHeader className="py-6 bg-gradient-to-r from-[#0C3B5F] to-[#1a5a8a] text-white">
         <div className="flex justify-between items-center">
           <div>

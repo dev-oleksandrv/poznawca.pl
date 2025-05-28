@@ -133,7 +133,7 @@ export function InterviewChat() {
 
         {!!interviewResult && (
           <div className="absolute top-0 left-0 w-full h-full bg-opacity-60 bg-black flex items-center justify-center z-10">
-            <InterviewChatResult />
+            <InterviewChatResult result={interviewResult} />
           </div>
         )}
       </div>

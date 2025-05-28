@@ -56,7 +56,7 @@ export function DashboardRecentResultsItem({ interview }: DashboardRecentResults
         </Badge>
       );
     }
-  }, [interview]);
+  }, [interview.status, interview.result]);
 
   const clickHandler = () => {
     if (interview.status === InterviewStatus.Completed && interview.result) {

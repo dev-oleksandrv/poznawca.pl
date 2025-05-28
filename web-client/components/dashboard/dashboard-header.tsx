@@ -10,7 +10,7 @@ export function DashboardHeader() {
           href="/portal"
           className="text-[#E12D39] hover:text-[#c0252f] text-xl font-bold transition-colors"
         >
-          poznawca.pl
+          poznawca
         </Link>
       </div>
 

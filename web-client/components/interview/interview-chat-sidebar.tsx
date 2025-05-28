@@ -37,7 +37,7 @@ export function InterviewChatSidebar({
   return (
     <div className="w-80 bg-white border-r border-gray-100 flex flex-col">
       <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-        <span className="text-xl font-bold text-[#E12D39]">poznawca.pl</span>
+        <span className="text-xl font-bold text-[#E12D39]">poznawca</span>
       </div>
 
       <div className="p-6 flex flex-col items-center">
